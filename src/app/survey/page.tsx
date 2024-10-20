@@ -97,7 +97,7 @@ interface FormData {
   country: string;
   hobbies: string[];
   times: string[];
-  characteristics: Record<string, string>;
+  characteristics: string[];
 }
 
 export default function Component() {
@@ -111,7 +111,7 @@ export default function Component() {
     country: "",
     hobbies: [],
     times: [],
-    characteristics: {},
+    characteristics: [],
   });
   const [languageInput, setLanguageInput] = useState("");
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -136,10 +136,9 @@ export default function Component() {
         break;
       case "text":
         const fieldName = currentQuestion === 2 ? "nickname" : "country";
-        const fieldValue = formData[fieldName as keyof typeof formData];
-        setIsNextDisabled(
-          typeof fieldValue === "string" ? fieldValue.trim() === "" : true
-        );
+        const fieldValue =
+          formData[fieldName as keyof Pick<FormData, "nickname" | "country">];
+        setIsNextDisabled(fieldValue.trim() === "");
         break;
       case "languageSelection":
         setIsNextDisabled(formData.langs.length === 0);
@@ -152,7 +151,7 @@ export default function Component() {
         break;
       case "characteristicsPairs":
         setIsNextDisabled(
-          Object.keys(formData.characteristics).length !==
+          formData.characteristics.length !==
             (question.options as { left: string; right: string }[]).length
         );
         break;
@@ -215,11 +214,9 @@ export default function Component() {
   ) => {
     setFormData((prev) => ({
       ...prev,
-      [field]: Array.isArray(prev[field])
-        ? (prev[field] as string[]).includes(option)
-          ? (prev[field] as string[]).filter((item) => item !== option)
-          : [...(prev[field] as string[]), option]
-        : prev[field],
+      [field]: prev[field].includes(option)
+        ? prev[field].filter((item) => item !== option)
+        : [...prev[field], option],
     }));
   };
 
@@ -232,14 +229,39 @@ export default function Component() {
     }));
   };
 
-  const handleCharacteristicChange = (pair: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      characteristics: {
-        ...prev.characteristics,
-        [pair]: value,
-      },
-    }));
+  const handleCharacteristicChange = (value: string) => {
+    setFormData((prev) => {
+      const characteristicOptions = questions.find(
+        (q) => q.type === "characteristicsPairs"
+      )?.options as { left: string; right: string }[];
+      const pairIndex = characteristicOptions.findIndex(
+        (pair) => pair.left === value || pair.right === value
+      );
+
+      if (pairIndex === -1) return prev;
+
+      const newCharacteristics = [...prev.characteristics];
+      const oppositeValue =
+        value === characteristicOptions[pairIndex].left
+          ? characteristicOptions[pairIndex].right
+          : characteristicOptions[pairIndex].left;
+
+      // Remove the opposite value if it exists
+      const oppositeIndex = newCharacteristics.indexOf(oppositeValue);
+      if (oppositeIndex !== -1) {
+        newCharacteristics.splice(oppositeIndex, 1);
+      }
+
+      // Toggle the selected value
+      const valueIndex = newCharacteristics.indexOf(value);
+      if (valueIndex === -1) {
+        newCharacteristics.push(value);
+      } else {
+        newCharacteristics.splice(valueIndex, 1);
+      }
+
+      return { ...prev, characteristics: newCharacteristics };
+    });
   };
 
   const addLanguage = () => {
@@ -489,22 +511,18 @@ export default function Component() {
                   <div className="flex justify-between gap-4">
                     <Button
                       type="button"
-                      onClick={() =>
-                        handleCharacteristicChange(`pair${index}`, pair.left)
-                      }
+                      onClick={() => handleCharacteristicChange(pair.left)}
                       variant={
-                        formData.characteristics[`pair${index}`] === pair.left
+                        formData.characteristics.includes(pair.left)
                           ? "default"
                           : "outline"
                       }
                       className={`flex-1 ${
                         isDarkMode
-                          ? formData.characteristics[`pair${index}`] ===
-                            pair.left
+                          ? formData.characteristics.includes(pair.left)
                             ? "bg-[#7a7bff] text-white"
                             : "bg-[#3c3c45] text-white"
-                          : formData.characteristics[`pair${index}`] ===
-                            pair.left
+                          : formData.characteristics.includes(pair.left)
                           ? "bg-blue-600 text-white"
                           : "bg-white text-gray-900"
                       }`}
@@ -513,22 +531,18 @@ export default function Component() {
                     </Button>
                     <Button
                       type="button"
-                      onClick={() =>
-                        handleCharacteristicChange(`pair${index}`, pair.right)
-                      }
+                      onClick={() => handleCharacteristicChange(pair.right)}
                       variant={
-                        formData.characteristics[`pair${index}`] === pair.right
+                        formData.characteristics.includes(pair.right)
                           ? "default"
                           : "outline"
                       }
                       className={`flex-1 ${
                         isDarkMode
-                          ? formData.characteristics[`pair${index}`] ===
-                            pair.right
+                          ? formData.characteristics.includes(pair.right)
                             ? "bg-[#7a7bff] text-white"
                             : "bg-[#3c3c45] text-white"
-                          : formData.characteristics[`pair${index}`] ===
-                            pair.right
+                          : formData.characteristics.includes(pair.right)
                           ? "bg-blue-600 text-white"
                           : "bg-white text-gray-900"
                       }`}
