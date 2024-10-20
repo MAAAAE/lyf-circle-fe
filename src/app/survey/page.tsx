@@ -16,8 +16,10 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type QuestionType =
+  | "intro"
   | "credentials"
   | "text"
   | "multipleChoice"
@@ -28,9 +30,16 @@ interface Question {
   type: QuestionType;
   question: string;
   options?: string[];
+  description?: string;
 }
 
 const questions: Question[] = [
+  {
+    type: "intro",
+    question: "설문조사 시작",
+    description:
+      "이 설문조사는 사용자 경험 개선을 위한 것입니다. 약 5분 정도 소요됩니다. 귀하의 개인정보는 안전하게 보호되며, 연구 목적으로만 사용됩니다.",
+  },
   { type: "credentials", question: "아이디와 비밀번호를 입력해주세요." },
   { type: "text", question: "닉네임을 입력해주세요." },
   {
@@ -81,13 +90,45 @@ export default function Component() {
   const [languageInput, setLanguageInput] = useState("");
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
-  const handleNext = () => {
+  const registerUser = async (userData: any) => {
+    try {
+      // API 주소 수정 요망
+      const response = await fetch("http://localhost:8080/user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to register user");
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Error registering user:", error);
+      throw error;
+    }
+  };
+
+  const handleNext = async () => {
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     } else {
-      console.log(JSON.stringify(formData, null, 2)); // Log the final JSON result
-      router.push("/list");
+      console.log(JSON.stringify(formData, null, 2));
+
+      try {
+        // API 호출
+        // await registerUser(formData);
+
+        // 성공적으로 반환받으면 리스트 페이지로 이동
+        router.push("/list");
+      } catch (error) {
+        console.error("Failed to register user:", error);
+      }
     }
   };
 
@@ -150,6 +191,28 @@ export default function Component() {
   const renderQuestion = () => {
     const question = questions[currentQuestion];
     switch (question.type) {
+      case "intro":
+        return (
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold">{question.question}</h2>
+            <p>{question.description}</p>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="terms"
+                checked={agreedToTerms}
+                onCheckedChange={(checked) =>
+                  setAgreedToTerms(checked as boolean)
+                }
+              />
+              <label
+                htmlFor="terms"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                개인정보 제공에 동의합니다
+              </label>
+            </div>
+          </div>
+        );
       case "credentials":
         return (
           <div className="space-y-4">
@@ -384,31 +447,41 @@ export default function Component() {
               className="w-full [&>*]:bg-blue-400"
             />
             {renderQuestion()}
-            <div className="flex justify-between">
-              <Button
-                onClick={handlePrevious}
-                variant="outline"
-                disabled={currentQuestion === 0}
-                className={
-                  isDarkMode
-                    ? "bg-[#3c3c45] text-white"
-                    : "bg-white text-gray-900"
-                }
-              >
-                <ChevronLeft className="mr-2 h-4 w-4" /> 이전
-              </Button>
+            {currentQuestion == 0 ? (
               <Button
                 onClick={handleNext}
-                className={
-                  isDarkMode
-                    ? "bg-[#7a7bff] text-white"
-                    : "bg-blue-600 text-white"
-                }
+                disabled={!agreedToTerms}
+                className="w-full bg-[#7a7bff]"
               >
-                {currentQuestion === questions.length - 1 ? "제출" : "다음"}
-                <ChevronRight className="ml-2 h-4 w-4" />
+                설문조사 시작
               </Button>
-            </div>
+            ) : (
+              <div className="flex justify-between">
+                <Button
+                  onClick={handlePrevious}
+                  variant="outline"
+                  disabled={currentQuestion === 0}
+                  className={
+                    isDarkMode
+                      ? "bg-[#3c3c45] text-white"
+                      : "bg-white text-gray-900"
+                  }
+                >
+                  <ChevronLeft className="mr-2 h-4 w-4" /> 이전
+                </Button>
+                <Button
+                  onClick={handleNext}
+                  className={
+                    isDarkMode
+                      ? "bg-[#7a7bff] text-white"
+                      : "bg-blue-600 text-white"
+                  }
+                >
+                  {currentQuestion === questions.length - 1 ? "제출" : "다음"}
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </main>

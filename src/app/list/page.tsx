@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import {
   User,
@@ -15,36 +13,14 @@ import {
 } from "lucide-react";
 import ChatComponent from "./ChatComponent";
 
-interface Activity {
-  id: number;
-  name: string;
-  date: {
-    month: number;
-    day: number;
-    weekday: string;
-    time: string;
-  };
-  participants: number;
-  emoji: string;
-  location: string;
-  description: string;
-  hasNewMessages: boolean;
-  details: Array<{
-    title: string;
-    content: string;
-  }>;
-}
-
 export default function Component() {
   const [visibleItems, setVisibleItems] = useState(0);
   const [sortBy, setSortBy] = useState("date");
   const [isDarkMode, setIsDarkMode] = useState(true);
-  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(
-    null
-  );
+  const [selectedActivity, setSelectedActivity] = useState(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isDetailsExpanded, setIsDetailsExpanded] = useState(true);
-  const [activities, setActivities] = useState<Activity[]>([
+  const [activities, setActivities] = useState([
     {
       id: 1,
       name: "도심 속 힐링 요가 클래스",
@@ -161,7 +137,7 @@ export default function Component() {
     setIsDarkMode(!isDarkMode);
   };
 
-  const handleActivityClick = (activity: Activity) => {
+  const handleActivityClick = (activity) => {
     setIsTransitioning(true);
     setTimeout(() => {
       setSelectedActivity(activity);
@@ -182,7 +158,7 @@ export default function Component() {
     }, 300);
   };
 
-  const handleNewMessage = (activityId: number) => {
+  const handleNewMessage = (activityId) => {
     setActivities((prevActivities) =>
       prevActivities.map((a) =>
         a.id === activityId ? { ...a, hasNewMessages: true } : a
@@ -234,7 +210,9 @@ export default function Component() {
         </div>
       </header>
 
-      <main className="flex-1 overflow-y-auto p-4">
+      <main className="flex-1 overflow-y-auto p-4 flex flex-col">
+        {" "}
+        {/* Update 2 */}
         <div
           className={`transition-all duration-300 ease-in-out ${
             isTransitioning
@@ -246,8 +224,10 @@ export default function Component() {
             <div
               className={`${
                 isDarkMode ? "bg-[#2c2c35]" : "bg-white"
-              } rounded-lg shadow-lg p-6`}
+              } rounded-lg shadow-lg p-6 flex flex-col flex-grow`}
             >
+              {" "}
+              {/* Update 3 */}
               <button
                 onClick={handleBackClick}
                 className={`mb-6 flex items-center ${
@@ -312,7 +292,9 @@ export default function Component() {
               >
                 {selectedActivity.description}
               </p>
-              <div className="space-y-6">
+              <div className="space-y-6 flex flex-col flex-grow">
+                {" "}
+                {/* Update 4 */}
                 <div
                   className={`${
                     isDarkMode ? "bg-[#3c3c45]" : "bg-gray-100"
@@ -351,22 +333,25 @@ export default function Component() {
                     </ul>
                   </div>
                 </div>
-                <div
-                  className={`mt-6 ${
-                    isDarkMode ? "bg-[#3c3c45]" : "bg-gray-100"
-                  } rounded-lg p-4 transition-all duration-300 ease-in-out ${
-                    isDetailsExpanded ? "h-[200px]" : "h-[400px]"
-                  }`}
-                >
+                <div className="mt-6 flex-grow">
+                  {" "}
+                  {/* Update 1 */}
                   <ChatComponent
                     isDarkMode={isDarkMode}
                     onNewMessage={() => handleNewMessage(selectedActivity.id)}
+                    initialMessages={[
+                      {
+                        text: "안녕하세요! 이 활동에 대해 궁금한 점이 있으신가요?",
+                        sender: "host",
+                        avatar: "/host-avatar.png",
+                      },
+                    ]}
                   />
                 </div>
               </div>
             </div>
           ) : (
-            <>
+            <div className="flex flex-col flex-grow overflow-auto">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold">추천 액티비티</h2>
                 <div className="relative">
@@ -495,7 +480,7 @@ export default function Component() {
                   </div>
                 </div>
               ))}
-            </>
+            </div>
           )}
         </div>
       </main>

@@ -44,21 +44,21 @@ export default function ChatComponent({
     }
   };
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const newMessage: Message = {
-        text: "안녕하세요! 이 활동에 대해 궁금한 점이 있으신가요?",
-        sender: "host",
-        avatar: "/host-avatar.png",
-      };
-      setChatMessages((prev) => [...prev, newMessage]);
-      if (onNewMessage) {
-        onNewMessage();
-      }
-    }, 2000);
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     const newMessage: Message = {
+  //       text: "안녕하세요! 이 활동에 대해 궁금한 점이 있으신가요?",
+  //       sender: "host",
+  //       avatar: "/host-avatar.png",
+  //     };
+  //     setChatMessages((prev) => [...prev, newMessage]);
+  //     if (onNewMessage) {
+  //       onNewMessage();
+  //     }
+  //   }, 2000);
 
-    return () => clearTimeout(timer);
-  }, [onNewMessage]);
+  //   return () => clearTimeout(timer);
+  // }, [onNewMessage]);
 
   useEffect(() => {
     if (chatContainerRef.current) {
