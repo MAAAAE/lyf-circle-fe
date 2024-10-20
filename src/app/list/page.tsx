@@ -49,90 +49,113 @@ export default function Component() {
   const [activities, setActivities] = useState<Activity[]>([
     {
       id: 1,
-      name: "도심 속 힐링 요가 클래스",
-      date: { month: 5, day: 20, weekday: "토", time: "15:00" },
+      name: "Gardens by the Bay Yoga Session",
+      date: { month: 5, day: 20, weekday: "Sat", time: "07:30" },
       participants: 3,
       emoji: "🧘",
-      location: "서울숲 공원",
+      location: "Supertree Grove, Gardens by the Bay",
       description:
-        "도심 속 자연에서 진행되는 힐링 요가 클래스입니다. 숲의 맑은 공기를 마시며 몸과 마음의 균형을 찾아보세요.",
+        "Start your day with a rejuvenating yoga session amidst the iconic Supertrees. Experience tranquility in the heart of Singapore's urban oasis.",
       hasNewMessages: true,
       details: [
-        { title: "준비물", content: "편한 복장, 물, 요가 매트 (대여 가능)" },
-        { title: "소요 시간", content: "약 1시간 30분" },
-        { title: "난이도", content: "초급 ~ 중급" },
-        { title: "인원 제한", content: "최대 10명" },
+        { title: "What to bring", content: "Yoga mat, water bottle, towel" },
+        { title: "Duration", content: "1 hour" },
+        { title: "Difficulty", content: "All levels welcome" },
+        { title: "Capacity", content: "Maximum 20 people" },
       ],
     },
     {
       id: 2,
-      name: "한강 야경 자전거 투어",
-      date: { month: 5, day: 21, weekday: "일", time: "19:00" },
+      name: "Night Cycling at East Coast Park",
+      date: { month: 5, day: 21, weekday: "Sun", time: "19:30" },
       participants: 2,
       emoji: "🚴",
-      location: "여의도 한강공원",
+      location: "East Coast Park",
       description:
-        "서울의 아름다운 야경을 감상하며 한강을 따라 자전거를 타는 투어입니다. 도시의 밤을 새롭게 경험해보세요.",
+        "Enjoy a refreshing evening cycle along Singapore's scenic East Coast. Feel the sea breeze as you ride under the stars.",
       hasNewMessages: false,
       details: [
-        { title: "준비물", content: "자전거 (대여 가능), 헬멧, 물" },
-        { title: "소요 시간", content: "약 2시간" },
-        { title: "난이도", content: "초급" },
-        { title: "인원 제한", content: "최대 8명" },
+        {
+          title: "What to bring",
+          content: "Bicycle (rentals available), helmet, water",
+        },
+        { title: "Duration", content: "2 hours" },
+        { title: "Difficulty", content: "Beginner" },
+        { title: "Capacity", content: "Maximum 12 people" },
       ],
     },
     {
       id: 3,
-      name: "비건 쿠킹 클래스",
-      date: { month: 5, day: 22, weekday: "월", time: "11:00" },
+      name: "Peranakan Cuisine Cooking Class",
+      date: { month: 5, day: 22, weekday: "Mon", time: "11:00" },
       participants: 4,
-      emoji: "🥗",
-      location: "강남구 쿠킹 스튜디오",
+      emoji: "🍲",
+      location: "Katong Kitchen Studio",
       description:
-        "건강하고 맛있는 비건 요리를 배우는 쿠킹 클래스입니다. 채식 위주의 식단에 관심 있는 분들께 추천합니다.",
+        "Learn to cook authentic Peranakan dishes in this hands-on class. Discover the rich flavors and traditions of Singaporean Nyonya cuisine.",
       hasNewMessages: true,
       details: [
-        { title: "준비물", content: "앞치마" },
-        { title: "소요 시간", content: "약 2시간" },
-        { title: "난이도", content: "초급 ~ 중급" },
-        { title: "인원 제한", content: "최대 6명" },
+        { title: "What to bring", content: "Apron (optional)" },
+        { title: "Duration", content: "3 hours" },
+        { title: "Difficulty", content: "Beginner to Intermediate" },
+        { title: "Capacity", content: "Maximum 8 people" },
       ],
     },
     {
       id: 4,
-      name: "실내 클라이밍 체험",
-      date: { month: 5, day: 27, weekday: "토", time: "14:00" },
+      name: "Sentosa Island Segway Tour",
+      date: { month: 5, day: 27, weekday: "Sat", time: "14:00" },
       participants: 2,
-      emoji: "🧗",
-      location: "홍대 클라이밍 센터",
+      emoji: "🛴",
+      location: "Sentosa Segway Tours Meeting Point",
       description:
-        "실내 암벽 등반을 체험해보는 클래스입니다. 초보자도 안전하게 즐길 수 있으며, 전신 운동 효과를 얻을 수 있습니다.",
+        "Explore the beautiful Sentosa Island on a Segway. Glide past beaches, forests, and historical sites on this guided tour.",
       hasNewMessages: false,
       details: [
-        { title: "준비물", content: "운동복, 실내용 운동화" },
-        { title: "소요 시간", content: "약 2시간" },
-        { title: "난이도", content: "초급" },
-        { title: "인원 제한", content: "최대 6명" },
+        {
+          title: "What to bring",
+          content: "Comfortable shoes, sunscreen, sunglasses",
+        },
+        { title: "Duration", content: "2 hours" },
+        { title: "Difficulty", content: "Beginner (training provided)" },
+        { title: "Capacity", content: "Maximum 10 people" },
       ],
     },
     {
       id: 5,
-      name: "전통 도예 원데이 클래스",
-      date: { month: 5, day: 31, weekday: "수", time: "16:00" },
+      name: "Batik Painting Workshop",
+      date: { month: 5, day: 31, weekday: "Wed", time: "16:00" },
       participants: 5,
-      emoji: "🏺",
-      location: "인사동 전통공방",
+      emoji: "🎨",
+      location: "Kampong Gelam Community Club",
       description:
-        "한국 전통 도예를 배우는 원데이 클래스입니다. 자신만의 도자기를 만들어보는 특별한 경험을 해보세요.",
+        "Immerse yourself in the art of Batik painting. Learn traditional techniques and create your own unique Batik masterpiece to take home.",
       hasNewMessages: false,
       details: [
-        { title: "준비물", content: "앞치마, 필기도구" },
-        { title: "소요 시간", content: "약 3시간" },
-        { title: "난이도", content: "초급" },
-        { title: "인원 제한", content: "최대 8명" },
+        { title: "What to bring", content: "Old clothes or apron" },
+        { title: "Duration", content: "2.5 hours" },
+        { title: "Difficulty", content: "Beginner" },
+        { title: "Capacity", content: "Maximum 12 people" },
       ],
     },
   ]);
+
+  useEffect(() => {
+    const fetchActivities = async () => {
+      try {
+        // 리스트를 받아올 API
+        const response = await fetch("http://localhost:8080/activities");
+        if (response.ok) {
+          const data = await response.json();
+          setActivities(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch activities:", error);
+      }
+    };
+
+    fetchActivities();
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -257,10 +280,10 @@ export default function Component() {
                     ? "text-gray-300 hover:text-white"
                     : "text-gray-600 hover:text-gray-900"
                 } transition-colors duration-200`}
-                aria-label="뒤로 가기"
+                aria-label="Back"
               >
                 <ArrowLeft className="w-5 h-5 mr-2" />
-                뒤로 가기
+                Back
               </button>
               <div className="flex items-start mb-6">
                 <span
@@ -302,7 +325,7 @@ export default function Component() {
                       }`}
                     >
                       <Users className="w-4 h-4 mr-1" />
-                      <span>참가자 {selectedActivity.participants}명</span>
+                      <span>participants: {selectedActivity.participants}</span>
                     </div>
                   </div>
                 </div>
@@ -331,7 +354,7 @@ export default function Component() {
                     aria-expanded={isDetailsExpanded}
                     aria-controls="activity-details"
                   >
-                    <h3 className="text-xl font-semibold">활동 세부 정보</h3>
+                    <h3 className="text-xl font-semibold">Details</h3>
                     {isDetailsExpanded ? (
                       <ChevronUp className="w-6 h-6" aria-hidden="true" />
                     ) : (
@@ -375,7 +398,7 @@ export default function Component() {
           ) : (
             <div className="flex flex-col flex-grow overflow-auto">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold">추천 액티비티</h2>
+                <h2 className="text-2xl font-bold">Suggested Activities</h2>
                 <div className="relative">
                   <select
                     className={`appearance-none ${
@@ -387,8 +410,8 @@ export default function Component() {
                     onChange={(e) => setSortBy(e.target.value)}
                     aria-label="정렬 기준"
                   >
-                    <option value="date">날짜순</option>
-                    <option value="participants">참가자순</option>
+                    <option value="date">date</option>
+                    <option value="participants">participant</option>
                   </select>
                   <ChevronDown
                     className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
@@ -490,7 +513,7 @@ export default function Component() {
                             isDarkMode ? "text-gray-400" : "text-gray-600"
                           } ml-3`}
                         >
-                          참가자 {activity.participants}명
+                          participants : {activity.participants}
                         </span>
                       </div>
                       {activity.hasNewMessages && (
