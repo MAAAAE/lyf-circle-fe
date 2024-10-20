@@ -1,14 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   ChevronLeft,
   ChevronRight,
   X,
   Moon,
   Sun,
-  User,
   Eye,
   EyeOff,
 } from "lucide-react";
@@ -24,77 +23,146 @@ type QuestionType =
   | "text"
   | "multipleChoice"
   | "timeSelection"
-  | "languageSelection";
+  | "languageSelection"
+  | "characteristicsPairs";
 
 interface Question {
   type: QuestionType;
   question: string;
-  options?: string[];
+  options?: string[] | { left: string; right: string }[];
   description?: string;
 }
 
 const questions: Question[] = [
   {
     type: "intro",
-    question: "설문조사 시작",
+    question: "Personal information consent",
     description:
-      "이 설문조사는 사용자 경험 개선을 위한 것입니다. 약 5분 정도 소요됩니다. 귀하의 개인정보는 안전하게 보호되며, 연구 목적으로만 사용됩니다.",
+      "We'd love to recommend activities tailored just for you. To do that, we kindly ask you to complete a short survey. By participating, you agree to share your preferences with us so our AI can suggest the best experiences during your stay.",
   },
-  { type: "credentials", question: "아이디와 비밀번호를 입력해주세요." },
-  { type: "text", question: "닉네임을 입력해주세요." },
+  { type: "credentials", question: "Please enter your Id and Password" },
+  { type: "text", question: "Please enter your NickName" },
   {
     type: "languageSelection",
-    question: "구사할 수 있는 언어를 입력해주세요.",
+    question: "Please enter the languages you can speak",
   },
-  { type: "text", question: "국적을 입력해주세요." },
+  { type: "text", question: "Please enter your nationality" },
   {
     type: "multipleChoice",
-    question: "관심 있는 활동을 선택해주세요.",
-    options: ["reading", "gaming", "coding", "work out", "music", "art"],
+    question:
+      "Please select the activities you're interested in or would like to participate in. (you can choose multiple).",
+    options: [
+      "Reading",
+      "Gaming",
+      "Coding",
+      "Language Exchange",
+      "Cooking",
+      "Weight lifting",
+      "Yoga",
+      "Music",
+      "Party",
+    ],
   },
   {
     type: "timeSelection",
-    question: "참여 가능한 시간을 선택해주세요.",
-    options: Array.from(
-      { length: 18 },
-      (_, i) => `${(i + 7).toString().padStart(2, "0")}:00`
-    ),
+    question:
+      "Please select the available time slots for participation (you can choose multiple).",
+    options: Array.from({ length: 34 }, (_, i) => {
+      const hours = Math.floor(i / 2) + 7;
+      const minutes = (i % 2) * 30;
+      return `${hours.toString().padStart(2, "0")}:${minutes
+        .toString()
+        .padStart(2, "0")}`;
+    }),
   },
   {
-    type: "multipleChoice",
-    question: "자신의 특징을 선택해주세요.",
+    type: "characteristicsPairs",
+    question: "Please select your characteristics",
     options: [
-      "introvert",
-      "extrovert",
-      "detail-oriented",
-      "big-picture thinker",
-      "team-player",
-      "independent worker",
+      { left: "Introverted", right: "Extroverted" },
+      { left: "Detail-oriented", right: "Big-picture thinker" },
+      { left: "Planner", right: "Spontaneous" },
+      { left: "Analytical", right: "Creative" },
+      { left: "Team player", right: "Independent worker" },
+      { left: "Risk-taker", right: "Cautious" },
     ],
   },
 ];
 
+interface FormData {
+  username: string;
+  password: string;
+  nickname: string;
+  langs: string[];
+  country: string;
+  hobbies: string[];
+  times: string[];
+  characteristics: Record<string, string>;
+}
+
 export default function Component() {
   const router = useRouter();
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     username: "",
     password: "",
     nickname: "",
-    langs: [] as string[],
+    langs: [],
     country: "",
-    hobbies: [] as string[],
-    times: [] as string[],
-    characteristics: [] as string[],
+    hobbies: [],
+    times: [],
+    characteristics: {},
   });
   const [languageInput, setLanguageInput] = useState("");
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [isNextDisabled, setIsNextDisabled] = useState(true);
 
-  const registerUser = async (userData: any) => {
+  useEffect(() => {
+    validateCurrentQuestion();
+  }, [currentQuestion, formData, agreedToTerms]);
+
+  const validateCurrentQuestion = () => {
+    const question = questions[currentQuestion];
+    switch (question.type) {
+      case "intro":
+        setIsNextDisabled(!agreedToTerms);
+        break;
+      case "credentials":
+        setIsNextDisabled(
+          formData.username.trim() === "" || formData.password.trim() === ""
+        );
+        break;
+      case "text":
+        const fieldName = currentQuestion === 2 ? "nickname" : "country";
+        const fieldValue = formData[fieldName as keyof typeof formData];
+        setIsNextDisabled(
+          typeof fieldValue === "string" ? fieldValue.trim() === "" : true
+        );
+        break;
+      case "languageSelection":
+        setIsNextDisabled(formData.langs.length === 0);
+        break;
+      case "multipleChoice":
+        setIsNextDisabled(formData.hobbies.length === 0);
+        break;
+      case "timeSelection":
+        setIsNextDisabled(formData.times.length === 0);
+        break;
+      case "characteristicsPairs":
+        setIsNextDisabled(
+          Object.keys(formData.characteristics).length !==
+            (question.options as { left: string; right: string }[]).length
+        );
+        break;
+      default:
+        setIsNextDisabled(false);
+    }
+  };
+
+  const registerUser = async (userData: FormData) => {
     try {
-      // API 주소 수정 요망
       const response = await fetch("http://localhost:8080/user", {
         method: "POST",
         headers: {
@@ -121,10 +189,9 @@ export default function Component() {
       console.log(JSON.stringify(formData, null, 2));
 
       try {
-        // API 호출
+        // API call commented out as per the original code
         // await registerUser(formData);
 
-        // 성공적으로 반환받으면 리스트 페이지로 이동
         router.push("/list");
       } catch (error) {
         console.error("Failed to register user:", error);
@@ -144,13 +211,15 @@ export default function Component() {
 
   const handleMultipleChoice = (
     option: string,
-    field: "hobbies" | "characteristics"
+    field: keyof Pick<FormData, "hobbies" | "characteristics">
   ) => {
     setFormData((prev) => ({
       ...prev,
-      [field]: prev[field].includes(option)
-        ? prev[field].filter((item) => item !== option)
-        : [...prev[field], option],
+      [field]: Array.isArray(prev[field])
+        ? (prev[field] as string[]).includes(option)
+          ? (prev[field] as string[]).filter((item) => item !== option)
+          : [...(prev[field] as string[]), option]
+        : prev[field],
     }));
   };
 
@@ -160,6 +229,16 @@ export default function Component() {
       times: prev.times.includes(time)
         ? prev.times.filter((t) => t !== time)
         : [...prev.times, time],
+    }));
+  };
+
+  const handleCharacteristicChange = (pair: string, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      characteristics: {
+        ...prev.characteristics,
+        [pair]: value,
+      },
     }));
   };
 
@@ -208,7 +287,8 @@ export default function Component() {
                 htmlFor="terms"
                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
-                개인정보 제공에 동의합니다
+                I agree to provide my personal information for the purpose of
+                personalized recommendations.
               </label>
             </div>
           </div>
@@ -216,9 +296,10 @@ export default function Component() {
       case "credentials":
         return (
           <div className="space-y-4">
+            <Label className="text-lg font-semibold">{question.question}</Label>
             <div>
               <Label htmlFor="username" className="text-lg font-semibold">
-                아이디
+                Id
               </Label>
               <Input
                 type="text"
@@ -235,7 +316,7 @@ export default function Component() {
             </div>
             <div>
               <Label htmlFor="password" className="text-lg font-semibold">
-                비밀번호
+                Password
               </Label>
               <div className="relative">
                 <Input
@@ -266,7 +347,7 @@ export default function Component() {
           </div>
         );
       case "text":
-        const fieldName = currentQuestion === 1 ? "nickname" : "country";
+        const fieldName = currentQuestion === 2 ? "nickname" : "country";
         return (
           <div className="space-y-4">
             <Label htmlFor={fieldName} className="text-lg font-semibold">
@@ -276,7 +357,11 @@ export default function Component() {
               type="text"
               id={fieldName}
               name={fieldName}
-              value={formData[fieldName as keyof typeof formData] as string}
+              value={
+                formData[
+                  fieldName as keyof Pick<FormData, "nickname" | "country">
+                ]
+              }
               onChange={handleInputChange}
               className={`w-full ${
                 isDarkMode
@@ -287,31 +372,27 @@ export default function Component() {
           </div>
         );
       case "multipleChoice":
-        const choiceField =
-          currentQuestion === 4 ? "hobbies" : "characteristics";
         return (
           <div className="space-y-4">
             <Label className="text-lg font-semibold">{question.question}</Label>
             <div className="grid grid-cols-2 gap-2">
-              {question.options?.map((option, index) => (
+              {(question.options as string[]).map((option, index) => (
                 <Button
                   key={index}
                   type="button"
                   variant={
-                    formData[choiceField].includes(option)
-                      ? "default"
-                      : "outline"
+                    formData.hobbies.includes(option) ? "default" : "outline"
                   }
                   className={`justify-center ${
                     isDarkMode
-                      ? formData[choiceField].includes(option)
+                      ? formData.hobbies.includes(option)
                         ? "bg-[#7a7bff] text-white"
                         : "bg-[#3c3c45] text-white"
-                      : formData[choiceField].includes(option)
+                      : formData.hobbies.includes(option)
                       ? "bg-blue-600 text-white"
                       : "bg-white text-gray-900"
                   }`}
-                  onClick={() => handleMultipleChoice(option, choiceField)}
+                  onClick={() => handleMultipleChoice(option, "hobbies")}
                 >
                   {option}
                 </Button>
@@ -324,7 +405,7 @@ export default function Component() {
           <div className="space-y-4">
             <Label className="text-lg font-semibold">{question.question}</Label>
             <div className="grid grid-cols-3 gap-2">
-              {question.options?.map((time, index) => (
+              {(question.options as string[]).map((time, index) => (
                 <Button
                   key={index}
                   type="button"
@@ -357,7 +438,7 @@ export default function Component() {
                 type="text"
                 value={languageInput}
                 onChange={(e) => setLanguageInput(e.target.value)}
-                placeholder="언어를 입력하세요"
+                placeholder="Input languages"
                 className={`flex-grow ${
                   isDarkMode
                     ? "bg-[#3c3c45] text-white"
@@ -372,7 +453,7 @@ export default function Component() {
                     : "bg-blue-600 text-white"
                 }
               >
-                추가
+                add
               </Button>
             </div>
             <div className="flex flex-wrap gap-2 mt-2">
@@ -395,6 +476,69 @@ export default function Component() {
                 </span>
               ))}
             </div>
+          </div>
+        );
+      case "characteristicsPairs":
+        return (
+          <div className="space-y-6">
+            <Label className="text-xl font-semibold">{question.question}</Label>
+            {(question.options as { left: string; right: string }[]).map(
+              (pair, index) => (
+                <div key={index} className="space-y-2">
+                  <Label className="text-sm font-medium">{`${pair.left} - ${pair.right}`}</Label>
+                  <div className="flex justify-between gap-4">
+                    <Button
+                      type="button"
+                      onClick={() =>
+                        handleCharacteristicChange(`pair${index}`, pair.left)
+                      }
+                      variant={
+                        formData.characteristics[`pair${index}`] === pair.left
+                          ? "default"
+                          : "outline"
+                      }
+                      className={`flex-1 ${
+                        isDarkMode
+                          ? formData.characteristics[`pair${index}`] ===
+                            pair.left
+                            ? "bg-[#7a7bff] text-white"
+                            : "bg-[#3c3c45] text-white"
+                          : formData.characteristics[`pair${index}`] ===
+                            pair.left
+                          ? "bg-blue-600 text-white"
+                          : "bg-white text-gray-900"
+                      }`}
+                    >
+                      {pair.left}
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={() =>
+                        handleCharacteristicChange(`pair${index}`, pair.right)
+                      }
+                      variant={
+                        formData.characteristics[`pair${index}`] === pair.right
+                          ? "default"
+                          : "outline"
+                      }
+                      className={`flex-1 ${
+                        isDarkMode
+                          ? formData.characteristics[`pair${index}`] ===
+                            pair.right
+                            ? "bg-[#7a7bff] text-white"
+                            : "bg-[#3c3c45] text-white"
+                          : formData.characteristics[`pair${index}`] ===
+                            pair.right
+                          ? "bg-blue-600 text-white"
+                          : "bg-white text-gray-900"
+                      }`}
+                    >
+                      {pair.right}
+                    </Button>
+                  </div>
+                </div>
+              )
+            )}
           </div>
         );
       default:
@@ -424,7 +568,9 @@ export default function Component() {
           <button
             onClick={toggleTheme}
             className="p-2 rounded-full hover:bg-opacity-20 hover:bg-gray-600 transition-colors duration-200"
-            aria-label={isDarkMode ? "라이트 모드로 전환" : "다크 모드로 전환"}
+            aria-label={
+              isDarkMode ? "Switch to light mode" : "Switch to dark mode"
+            }
           >
             {isDarkMode ? (
               <Sun className="w-6 h-6" />
@@ -447,37 +593,37 @@ export default function Component() {
               className="w-full [&>*]:bg-blue-400"
             />
             {renderQuestion()}
-            {currentQuestion == 0 ? (
+            {currentQuestion === 0 ? (
               <Button
                 onClick={handleNext}
                 disabled={!agreedToTerms}
                 className="w-full bg-[#7a7bff]"
               >
-                설문조사 시작
+                Start survey
               </Button>
             ) : (
-              <div className="flex justify-between">
+              <div className="flex justify-between mt-6">
                 <Button
                   onClick={handlePrevious}
                   variant="outline"
-                  disabled={currentQuestion === 0}
                   className={
                     isDarkMode
                       ? "bg-[#3c3c45] text-white"
                       : "bg-white text-gray-900"
                   }
                 >
-                  <ChevronLeft className="mr-2 h-4 w-4" /> 이전
+                  <ChevronLeft className="mr-2 h-4 w-4" /> Previous
                 </Button>
                 <Button
                   onClick={handleNext}
-                  className={
-                    isDarkMode
-                      ? "bg-[#7a7bff] text-white"
-                      : "bg-blue-600 text-white"
-                  }
+                  disabled={isNextDisabled}
+                  className={`${
+                    isDarkMode ? "bg-[#7a7bff]" : "bg-blue-600"
+                  } text-white ${
+                    isNextDisabled ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
                 >
-                  {currentQuestion === questions.length - 1 ? "제출" : "다음"}
+                  {currentQuestion === questions.length - 1 ? "Submit" : "Next"}{" "}
                   <ChevronRight className="ml-2 h-4 w-4" />
                 </Button>
               </div>

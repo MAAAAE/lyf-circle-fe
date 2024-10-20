@@ -17,8 +17,11 @@ function Qrcode() {
     <div className="flex flex-col h-screen bg-[#1c1c23] text-white">
       <main className="flex flex-col items-center justify-center h-screen p-4">
         <div className="w-full max-w-md bg-[#2c2c35] rounded-lg shadow-lg p-6 flex flex-col items-center">
+          <h1 className="text-3xl font-extrabold mb-6 text-[#7a7bff]">
+            lyfCircle
+          </h1>
           <h2 className="text-xl font-semibold mb-6 text-[#7a7bff]">
-            Scan to access the survey
+            Scan to start
           </h2>
           <div className="p-4 rounded-lg bg-white w-[232px] h-[232px] flex items-center justify-center">
             {isLoading ? (
@@ -40,7 +43,7 @@ function Qrcode() {
             )}
           </div>
           <p className="mt-6 text-center text-sm">
-            Scan this QR code with your mobile device to access the survey page.
+            Scan this QR code with your mobile device to access.
           </p>
         </div>
       </main>
