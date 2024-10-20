@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import {
   User,
@@ -13,14 +15,38 @@ import {
 } from "lucide-react";
 import ChatComponent from "./ChatComponent";
 
+interface ActivityDetail {
+  title: string;
+  content: string;
+}
+
+interface Activity {
+  id: number;
+  name: string;
+  date: {
+    month: number;
+    day: number;
+    weekday: string;
+    time: string;
+  };
+  participants: number;
+  emoji: string;
+  location: string;
+  description: string;
+  hasNewMessages: boolean;
+  details: ActivityDetail[];
+}
+
 export default function Component() {
   const [visibleItems, setVisibleItems] = useState(0);
   const [sortBy, setSortBy] = useState("date");
   const [isDarkMode, setIsDarkMode] = useState(true);
-  const [selectedActivity, setSelectedActivity] = useState(null);
+  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(
+    null
+  );
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isDetailsExpanded, setIsDetailsExpanded] = useState(true);
-  const [activities, setActivities] = useState([
+  const [activities, setActivities] = useState<Activity[]>([
     {
       id: 1,
       name: "도심 속 힐링 요가 클래스",
@@ -137,7 +163,7 @@ export default function Component() {
     setIsDarkMode(!isDarkMode);
   };
 
-  const handleActivityClick = (activity) => {
+  const handleActivityClick = (activity: Activity) => {
     setIsTransitioning(true);
     setTimeout(() => {
       setSelectedActivity(activity);
@@ -158,7 +184,7 @@ export default function Component() {
     }, 300);
   };
 
-  const handleNewMessage = (activityId) => {
+  const handleNewMessage = (activityId: number) => {
     setActivities((prevActivities) =>
       prevActivities.map((a) =>
         a.id === activityId ? { ...a, hasNewMessages: true } : a
@@ -211,8 +237,6 @@ export default function Component() {
       </header>
 
       <main className="flex-1 overflow-y-auto p-4 flex flex-col">
-        {" "}
-        {/* Update 2 */}
         <div
           className={`transition-all duration-300 ease-in-out ${
             isTransitioning
@@ -226,8 +250,6 @@ export default function Component() {
                 isDarkMode ? "bg-[#2c2c35]" : "bg-white"
               } rounded-lg shadow-lg p-6 flex flex-col flex-grow`}
             >
-              {" "}
-              {/* Update 3 */}
               <button
                 onClick={handleBackClick}
                 className={`mb-6 flex items-center ${
@@ -293,8 +315,6 @@ export default function Component() {
                 {selectedActivity.description}
               </p>
               <div className="space-y-6 flex flex-col flex-grow">
-                {" "}
-                {/* Update 4 */}
                 <div
                   className={`${
                     isDarkMode ? "bg-[#3c3c45]" : "bg-gray-100"
@@ -324,18 +344,20 @@ export default function Component() {
                         isDarkMode ? "text-gray-300" : "text-gray-700"
                       }`}
                     >
-                      {selectedActivity.details.map((detail, index) => (
-                        <li key={index} className="mb-2">
-                          <span className="font-semibold">{detail.title}:</span>{" "}
-                          {detail.content}
-                        </li>
-                      ))}
+                      {selectedActivity.details.map(
+                        (detail: ActivityDetail, index: number) => (
+                          <li key={index} className="mb-2">
+                            <span className="font-semibold">
+                              {detail.title}:
+                            </span>{" "}
+                            {detail.content}
+                          </li>
+                        )
+                      )}
                     </ul>
                   </div>
                 </div>
                 <div className="mt-6 flex-grow">
-                  {" "}
-                  {/* Update 1 */}
                   <ChatComponent
                     isDarkMode={isDarkMode}
                     onNewMessage={() => handleNewMessage(selectedActivity.id)}
@@ -374,112 +396,116 @@ export default function Component() {
                   />
                 </div>
               </div>
-              {activities.slice(0, visibleItems).map((activity, index) => (
-                <div
-                  key={activity.id}
-                  className={`mb-4 p-4 ${
-                    isDarkMode ? "bg-[#2c2c35]" : "bg-white"
-                  } rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 cursor-pointer`}
-                  style={{
-                    opacity: 0,
-                    animation: `fadeIn 0.3s ease-out ${index * 0.05}s forwards`,
-                  }}
-                  onClick={() => handleActivityClick(activity)}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`${activity.name} 상세 정보 보기`}
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center">
-                      <span
-                        className="text-3xl mr-3"
-                        role="img"
-                        aria-label={activity.name}
-                      >
-                        {activity.emoji}
-                      </span>
-                      <div>
-                        <h3 className="text-xl font-semibold">
-                          {activity.name}
-                        </h3>
-                        <div
-                          className={`flex items-center text-sm ${
-                            isDarkMode ? "text-gray-400" : "text-gray-600"
-                          } mt-1`}
+              {activities
+                .slice(0, visibleItems)
+                .map((activity: Activity, index: number) => (
+                  <div
+                    key={activity.id}
+                    className={`mb-4 p-4 ${
+                      isDarkMode ? "bg-[#2c2c35]" : "bg-white"
+                    } rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 cursor-pointer`}
+                    style={{
+                      opacity: 0,
+                      animation: `fadeIn 0.3s ease-out ${
+                        index * 0.05
+                      }s forwards`,
+                    }}
+                    onClick={() => handleActivityClick(activity)}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`${activity.name} 상세 정보 보기`}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center">
+                        <span
+                          className="text-3xl mr-3"
+                          role="img"
+                          aria-label={activity.name}
                         >
-                          <MapPin className="w-4 h-4 mr-1" />
-                          <span>{activity.location}</span>
+                          {activity.emoji}
+                        </span>
+                        <div>
+                          <h3 className="text-xl font-semibold">
+                            {activity.name}
+                          </h3>
+                          <div
+                            className={`flex items-center text-sm ${
+                              isDarkMode ? "text-gray-400" : "text-gray-600"
+                            } mt-1`}
+                          >
+                            <MapPin className="w-4 h-4 mr-1" />
+                            <span>{activity.location}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div
-                      className={`${
-                        isDarkMode ? "bg-[#3c3c45]" : "bg-gray-200"
-                      } px-3 py-1 rounded-full flex items-center`}
-                    >
-                      <Calendar className="w-4 h-4 mr-1" />
-                      <span className="text-sm font-medium">
-                        {activity.date.month}/{activity.date.day}
-                      </span>
-                      <span
-                        className={`text-xs ${
-                          isDarkMode ? "text-gray-400" : "text-gray-600"
-                        } ml-1`}
+                      <div
+                        className={`${
+                          isDarkMode ? "bg-[#3c3c45]" : "bg-gray-200"
+                        } px-3 py-1 rounded-full flex items-center`}
                       >
-                        {activity.date.weekday} {activity.date.time}
-                      </span>
+                        <Calendar className="w-4 h-4 mr-1" />
+                        <span className="text-sm font-medium">
+                          {activity.date.month}/{activity.date.day}
+                        </span>
+                        <span
+                          className={`text-xs ${
+                            isDarkMode ? "text-gray-400" : "text-gray-600"
+                          } ml-1`}
+                        >
+                          {activity.date.weekday} {activity.date.time}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center mt-3 justify-between">
-                    <div className="flex items-center">
-                      <div className="flex -space-x-2">
-                        {[...Array(Math.min(3, activity.participants))].map(
-                          (_, i) => (
+                    <div className="flex items-center mt-3 justify-between">
+                      <div className="flex items-center">
+                        <div className="flex -space-x-2">
+                          {[...Array(Math.min(3, activity.participants))].map(
+                            (_, i) => (
+                              <div
+                                key={i}
+                                className={`w-8 h-8 rounded-full ${
+                                  isDarkMode
+                                    ? "bg-[#3c3c45] border-[#2c2c35]"
+                                    : "bg-gray-300 border-white"
+                                } border-2 flex items-center justify-center text-xs font-semibold`}
+                              >
+                                {String.fromCharCode(65 + i)}
+                              </div>
+                            )
+                          )}
+                          {activity.participants > 3 && (
                             <div
-                              key={i}
                               className={`w-8 h-8 rounded-full ${
                                 isDarkMode
                                   ? "bg-[#3c3c45] border-[#2c2c35]"
                                   : "bg-gray-300 border-white"
                               } border-2 flex items-center justify-center text-xs font-semibold`}
                             >
-                              {String.fromCharCode(65 + i)}
+                              +{activity.participants - 3}
                             </div>
-                          )
-                        )}
-                        {activity.participants > 3 && (
-                          <div
-                            className={`w-8 h-8 rounded-full ${
-                              isDarkMode
-                                ? "bg-[#3c3c45] border-[#2c2c35]"
-                                : "bg-gray-300 border-white"
-                            } border-2 flex items-center justify-center text-xs font-semibold`}
-                          >
-                            +{activity.participants - 3}
-                          </div>
-                        )}
+                          )}
+                        </div>
+                        <span
+                          className={`text-sm ${
+                            isDarkMode ? "text-gray-400" : "text-gray-600"
+                          } ml-3`}
+                        >
+                          참가자 {activity.participants}명
+                        </span>
                       </div>
-                      <span
-                        className={`text-sm ${
-                          isDarkMode ? "text-gray-400" : "text-gray-600"
-                        } ml-3`}
-                      >
-                        참가자 {activity.participants}명
-                      </span>
+                      {activity.hasNewMessages && (
+                        <div
+                          className={`flex items-center ${
+                            isDarkMode ? "text-[#7a7bff]" : "text-blue-600"
+                          }`}
+                        >
+                          <MessageCircle className="w-5 h-5 mr-1" />
+                          <span className="text-sm font-medium">새 메시지</span>
+                        </div>
+                      )}
                     </div>
-                    {activity.hasNewMessages && (
-                      <div
-                        className={`flex items-center ${
-                          isDarkMode ? "text-[#7a7bff]" : "text-blue-600"
-                        }`}
-                      >
-                        <MessageCircle className="w-5 h-5 mr-1" />
-                        <span className="text-sm font-medium">새 메시지</span>
-                      </div>
-                    )}
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
           )}
         </div>
