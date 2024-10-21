@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState, useEffect, useRef } from "react";
 import { Send, Smile } from "lucide-react";
@@ -34,7 +34,8 @@ export default function ChatComponent({
         const aiResponse: Message = {
           text: "안녕하세요! 활동에 관심 가져주셔서 감사합니다. 어떤 점이 궁금하신가요?",
           sender: "ai",
-          avatar: "/ai-avatar.png",
+          avatar:
+            "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/lyf-avatar-tyQsPYtUM3rhuC06Vl0WKayntr1KIV.webp",
         };
         setChatMessages((prev) => [...prev, aiResponse]);
         if (onNewMessage) {
@@ -49,7 +50,7 @@ export default function ChatComponent({
   //     const newMessage: Message = {
   //       text: "안녕하세요! 이 활동에 대해 궁금한 점이 있으신가요?",
   //       sender: "host",
-  //       avatar: "/host-avatar.png",
+  //       avatar:"https://hebbkx1anhila5yf.public.blob.vercel-storage.com/lyf-avatar-tyQsPYtUM3rhuC06Vl0WKayntr1KIV.webp",
   //     };
   //     setChatMessages((prev) => [...prev, newMessage]);
   //     if (onNewMessage) {

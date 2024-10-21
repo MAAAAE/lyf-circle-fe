@@ -388,7 +388,8 @@ export default function Component() {
                       {
                         text: "안녕하세요! 이 활동에 대해 궁금한 점이 있으신가요?",
                         sender: "host",
-                        avatar: "/host-avatar.png",
+                        avatar:
+                          "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/lyf-avatar-tyQsPYtUM3rhuC06Vl0WKayntr1KIV.webp",
                       },
                     ]}
                   />
