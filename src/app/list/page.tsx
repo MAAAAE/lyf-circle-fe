@@ -386,12 +386,13 @@ export default function Component() {
                   <ChatComponent
                     isDarkMode={isDarkMode}
                     onNewMessage={() => handleNewMessage(selectedActivity.id)}
-                    username={user_id}
+                    userId={user_id}
                     initialMessages={[
                       {
                         content:
                           "안녕하세요! 이 활동에 대해 궁금한 점이 있으신가요?",
                         sender: "host",
+                        senderId: "ai",
                         type: "CHAT",
                         eventId: selectedActivity.id.toString(),
                         timestamp: "NOW",

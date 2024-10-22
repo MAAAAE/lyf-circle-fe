@@ -211,7 +211,7 @@ export default function Component() {
 
         const result = await response.json();
         // zustand에 유저 id저장
-        setUser_id(result)
+        setUser_id(result.id);
         console.log("User registered successfully:", result);
 
         // Redirect to the list page after successful registration
