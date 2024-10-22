@@ -14,6 +14,7 @@ import {
   ChevronUp,
 } from "lucide-react";
 import ChatComponent from "./ChatComponent";
+import useUserIdStore from "../hooks/useUserInfo";
 
 interface ActivityDetail {
   title: string;
@@ -44,6 +45,7 @@ export default function Component() {
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(
     null
   );
+  const { user_id } = useUserIdStore();
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isDetailsExpanded, setIsDetailsExpanded] = useState(true);
   const [activities, setActivities] = useState<Activity[]>([
@@ -384,10 +386,11 @@ export default function Component() {
                   <ChatComponent
                     isDarkMode={isDarkMode}
                     onNewMessage={() => handleNewMessage(selectedActivity.id)}
-                    username={"user2"}
+                    username={user_id}
                     initialMessages={[
                       {
-                        content: "안녕하세요! 이 활동에 대해 궁금한 점이 있으신가요?",
+                        content:
+                          "안녕하세요! 이 활동에 대해 궁금한 점이 있으신가요?",
                         sender: "host",
                         type: "CHAT",
                         eventId: selectedActivity.id.toString(),
@@ -396,7 +399,8 @@ export default function Component() {
                           "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/lyf-avatar-tyQsPYtUM3rhuC06Vl0WKayntr1KIV.webp",
                       },
                     ]}
-                   eventId={selectedActivity.id.toString()}/>
+                    eventId={selectedActivity.id.toString()}
+                  />
                 </div>
               </div>
             </div>

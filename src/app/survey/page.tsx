@@ -17,6 +17,7 @@ import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import useUserIdStore from "../hooks/useUserInfo";
 
 type QuestionType =
   | "intro"
@@ -148,6 +149,7 @@ export default function Component() {
   const [showPassword, setShowPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [isNextDisabled, setIsNextDisabled] = useState(true);
+  const { setUser_id } = useUserIdStore();
 
   useEffect(() => {
     validateCurrentQuestion();
@@ -208,6 +210,8 @@ export default function Component() {
         }
 
         const result = await response.json();
+        // zustand에 유저 id저장
+        setUser_id(result)
         console.log("User registered successfully:", result);
 
         // Redirect to the list page after successful registration
