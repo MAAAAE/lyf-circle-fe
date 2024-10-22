@@ -3,155 +3,202 @@
 import { useState, useEffect, useRef } from "react";
 import { Send, Smile } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Client, IMessage } from "@stomp/stompjs";
+import SockJS from "sockjs-client";
 
 interface Message {
-  text: string;
-  sender: "user" | "ai" | "host";
+  type: string;
+  content: string;
+  sender: string;
+  eventId: string;
+  timestamp: string;
   avatar?: string;
 }
 
 interface ChatComponentProps {
   isDarkMode: boolean;
   initialMessages?: Message[];
-  onNewMessage?: () => void;
+  eventId: string; // 이벤트 ID를 prop으로 전달
+  username: string; // 사용자 이름을 prop으로 전달
 }
 
 export default function ChatComponent({
-  isDarkMode,
-  initialMessages = [],
-  onNewMessage,
-}: ChatComponentProps) {
+                                        isDarkMode,
+                                        initialMessages = [],
+                                        eventId,
+                                        username,
+                                      }: ChatComponentProps) {
   const [chatMessages, setChatMessages] = useState<Message[]>(initialMessages);
   const [messageInput, setMessageInput] = useState("");
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const clientRef = useRef<Client | null>(null);
+
+  useEffect(() => {
+    // STOMP 클라이언트 설정
+    const socket = new SockJS("http://localhost:8080/ws-chat"); // Spring의 WebSocket 엔드포인트
+    const client = new Client({
+      webSocketFactory: () => socket,
+      reconnectDelay: 5000,
+      onConnect: () => {
+        console.log("Connected to STOMP server");
+
+        // 채팅 메시지 구독
+        client.subscribe(`/topic/${eventId}`, (message: IMessage) => {
+          const receivedMessage: Message = JSON.parse(message.body);
+          setChatMessages((prev) => [...prev, receivedMessage]);
+        });
+
+        // 채팅 히스토리 구독
+        client.subscribe(`/queue/history/${eventId}`, (message: IMessage) => {
+          const history: Message[] = JSON.parse(message.body);
+          setChatMessages(history);
+        });
+
+        // 사용자 추가 메시지 전송 (JOIN)
+        client.publish({
+          destination: `/app/chat.addUser/${eventId}`,
+          body: JSON.stringify({
+            sender: username,
+            type: "JOIN",
+          }),
+        });
+      },
+      onStompError: (frame) => {
+        console.error("Broker reported error: " + frame.headers["message"]);
+        console.error("Additional details: " + frame.body);
+      },
+    });
+
+    client.activate();
+    clientRef.current = client;
+
+    return () => {
+      if (clientRef.current && clientRef.current.active) {
+        if (clientRef.current.connected) {
+          // 사용자 제거 메시지 전송 (LEAVE)
+          clientRef.current.publish({
+            destination: `/app/chat.addUser/${eventId}`,
+            body: JSON.stringify({
+              sender: username,
+              type: "LEAVE",
+            }),
+          });
+        }
+        clientRef.current.deactivate();
+      }
+    };
+  }, [eventId, username]);
 
   const handleSendMessage = () => {
-    if (messageInput.trim()) {
-      const newMessage: Message = { text: messageInput, sender: "user" };
-      setChatMessages([...chatMessages, newMessage]);
+    if (messageInput.trim() && clientRef.current && clientRef.current.connected) {
+      const message = {
+        sender: username,
+        content: messageInput,
+        type: "CHAT",
+        eventId: eventId,
+      };
+      clientRef.current.publish({
+        destination: `/app/chat.sendMessage/${eventId}`,
+        body: JSON.stringify(message),
+      });
       setMessageInput("");
-      setTimeout(() => {
-        const aiResponse: Message = {
-          text: "안녕하세요! 활동에 관심 가져주셔서 감사합니다. 어떤 점이 궁금하신가요?",
-          sender: "ai",
-          avatar:
-            "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/lyf-avatar-tyQsPYtUM3rhuC06Vl0WKayntr1KIV.webp",
-        };
-        setChatMessages((prev) => [...prev, aiResponse]);
-        if (onNewMessage) {
-          onNewMessage();
-        }
-      }, 1000);
     }
   };
-
-  // useEffect(() => {
-  //   const timer = setTimeout(() => {
-  //     const newMessage: Message = {
-  //       text: "안녕하세요! 이 활동에 대해 궁금한 점이 있으신가요?",
-  //       sender: "host",
-  //       avatar:"https://hebbkx1anhila5yf.public.blob.vercel-storage.com/lyf-avatar-tyQsPYtUM3rhuC06Vl0WKayntr1KIV.webp",
-  //     };
-  //     setChatMessages((prev) => [...prev, newMessage]);
-  //     if (onNewMessage) {
-  //       onNewMessage();
-  //     }
-  //   }, 2000);
-
-  //   return () => clearTimeout(timer);
-  // }, [onNewMessage]);
 
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop =
-        chatContainerRef.current.scrollHeight;
+          chatContainerRef.current.scrollHeight;
     }
   }, [chatMessages]);
 
   return (
-    <div
-      className={`w-full ${
-        isDarkMode ? "bg-[#2c2c35]" : "bg-white"
-      } rounded-lg shadow-lg p-4`}
-    >
-      <h3 className="text-xl font-semibold mb-4">채팅</h3>
       <div
-        ref={chatContainerRef}
-        className={`h-80 overflow-y-auto mb-4 p-4 ${
-          isDarkMode ? "bg-[#1c1c23]" : "bg-gray-100"
-        } rounded-lg`}
+          className={`w-full ${
+              isDarkMode ? "bg-[#2c2c35]" : "bg-white"
+          } rounded-lg shadow-lg p-4`}
       >
-        {chatMessages.map((message, index) => (
-          <div
-            key={index}
-            className={`flex items-start mb-4 ${
-              message.sender === "user" ? "justify-end" : "justify-start"
-            }`}
+        <h3 className="text-xl font-semibold mb-4">채팅</h3>
+        <div
+            ref={chatContainerRef}
+            className={`h-80 overflow-y-auto mb-4 p-4 ${
+                isDarkMode ? "bg-[#1c1c23]" : "bg-gray-100"
+            } rounded-lg`}
+        >
+          {chatMessages.map((message, index) => (
+              <div
+                  key={index}
+                  className={`flex items-start mb-4 ${
+                      message.sender === username ? "justify-end" : "justify-start"
+                  }`}
+              >
+                {message.sender !== username && (
+                    <Avatar className="w-8 h-8 mr-2">
+                      <AvatarImage
+                          src={
+                              message.avatar ||
+                              `/placeholder-${message.sender}.png`
+                          }
+                          alt={`${message.sender} avatar`}
+                      />
+                      <AvatarFallback>
+                        {message.sender === "ai" ? "AI" : "H"}
+                      </AvatarFallback>
+                    </Avatar>
+                )}
+                <div
+                    className={`max-w-[70%] p-3 rounded-lg ${
+                        message.sender === username
+                            ? isDarkMode
+                                ? "bg-[#7a7bff] text-white"
+                                : "bg-blue-500 text-white"
+                            : isDarkMode
+                                ? "bg-[#3c3c45] text-white"
+                                : "bg-gray-300 text-gray-800"
+                    }`}
+                >
+                  <p className="text-sm">{message.content}</p>
+                </div>
+                {message.sender === username && (
+                    <Avatar className="w-8 h-8 ml-2">
+                      <AvatarImage src="/user-avatar.png" alt="User avatar" />
+                      <AvatarFallback>U</AvatarFallback>
+                    </Avatar>
+                )}
+              </div>
+          ))}
+        </div>
+        <div className="flex space-x-2">
+          <button
+              className={`p-2 rounded-lg ${
+                  isDarkMode
+                      ? "bg-[#3c3c45] text-gray-300 hover:text-white"
+                      : "bg-gray-200 text-gray-600 hover:text-gray-900"
+              } transition-colors duration-200`}
+              aria-label="이모티콘 선택"
           >
-            {message.sender !== "user" && (
-              <Avatar className="w-8 h-8 mr-2">
-                <AvatarImage
-                  src={message.avatar || `/placeholder-${message.sender}.png`}
-                  alt={`${message.sender} avatar`}
-                />
-                <AvatarFallback>
-                  {message.sender === "ai" ? "AI" : "H"}
-                </AvatarFallback>
-              </Avatar>
-            )}
-            <div
-              className={`max-w-[70%] p-3 rounded-lg ${
-                message.sender === "user"
-                  ? isDarkMode
-                    ? "bg-[#7a7bff] text-white"
-                    : "bg-blue-500 text-white"
-                  : isDarkMode
-                  ? "bg-[#3c3c45] text-white"
-                  : "bg-gray-300 text-gray-800"
-              }`}
-            >
-              <p className="text-sm">{message.text}</p>
-            </div>
-            {message.sender === "user" && (
-              <Avatar className="w-8 h-8 ml-2">
-                <AvatarImage src="/user-avatar.png" alt="User avatar" />
-                <AvatarFallback>U</AvatarFallback>
-              </Avatar>
-            )}
-          </div>
-        ))}
+            <Smile className="w-5 h-5" />
+          </button>
+          <input
+              type="text"
+              value={messageInput}
+              onChange={(e) => setMessageInput(e.target.value)}
+              placeholder="메시지를 입력하세요..."
+              className={`flex-1 p-2 rounded-lg ${
+                  isDarkMode ? "bg-[#3c3c45] text-white" : "bg-gray-100 text-gray-900"
+              } focus:outline-none focus:ring-2 focus:ring-[#7a7bff]`}
+              onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+          />
+          <button
+              onClick={handleSendMessage}
+              className={`p-2 rounded-lg ${
+                  isDarkMode ? "bg-[#7a7bff] text-white" : "bg-blue-500 text-white"
+              } hover:opacity-90 transition-opacity duration-200`}
+              aria-label="메시지 보내기"
+          >
+            <Send className="w-5 h-5" />
+          </button>
+        </div>
       </div>
-      <div className="flex space-x-2">
-        <button
-          className={`p-2 rounded-lg ${
-            isDarkMode
-              ? "bg-[#3c3c45] text-gray-300 hover:text-white"
-              : "bg-gray-200 text-gray-600 hover:text-gray-900"
-          } transition-colors duration-200`}
-          aria-label="이모티콘 선택"
-        >
-          <Smile className="w-5 h-5" />
-        </button>
-        <input
-          type="text"
-          value={messageInput}
-          onChange={(e) => setMessageInput(e.target.value)}
-          placeholder="메시지를 입력하세요..."
-          className={`flex-1 p-2 rounded-lg ${
-            isDarkMode ? "bg-[#3c3c45] text-white" : "bg-gray-100 text-gray-900"
-          } focus:outline-none focus:ring-2 focus:ring-[#7a7bff]`}
-          onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-        />
-        <button
-          onClick={handleSendMessage}
-          className={`p-2 rounded-lg ${
-            isDarkMode ? "bg-[#7a7bff] text-white" : "bg-blue-500 text-white"
-          } hover:opacity-90 transition-opacity duration-200`}
-          aria-label="메시지 보내기"
-        >
-          <Send className="w-5 h-5" />
-        </button>
-      </div>
-    </div>
   );
 }
