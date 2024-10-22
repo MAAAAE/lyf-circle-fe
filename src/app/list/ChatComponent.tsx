@@ -11,6 +11,7 @@ interface Message {
   type: string;
   content: string;
   sender: string;
+  senderId: string;
   eventId: string;
   timestamp: string;
   avatar?: string;
@@ -20,7 +21,7 @@ interface ChatComponentProps {
   isDarkMode: boolean;
   initialMessages?: Message[];
   eventId: string; // 이벤트 ID를 prop으로 전달
-  username: string; // 사용자 이름을 prop으로 전달
+  userId: string; // 사용자 이름을 prop으로 전달
   onNewMessage?: ()=>void;
 }
 
@@ -28,7 +29,7 @@ export default function ChatComponent({
   isDarkMode,
   initialMessages = [],
   eventId,
-  username,
+  userId,
 }: ChatComponentProps) {
   const [chatMessages, setChatMessages] = useState<Message[]>(initialMessages);
   const [messageInput, setMessageInput] = useState("");
@@ -60,7 +61,7 @@ export default function ChatComponent({
         client.publish({
           destination: `/app/chat.addUser/${eventId}`,
           body: JSON.stringify({
-            sender: username,
+            senderId: userId,
             type: "JOIN",
           }),
         });
@@ -82,7 +83,7 @@ export default function ChatComponent({
           clientRef.current.publish({
             destination: `/app/chat.addUser/${eventId}`,
             body: JSON.stringify({
-              sender: username,
+              senderId: userId,
               type: "LEAVE",
             }),
           });
@@ -90,7 +91,7 @@ export default function ChatComponent({
         clientRef.current.deactivate();
       }
     };
-  }, [eventId, username]);
+  }, [eventId, userId]);
 
   const handleSendMessage = () => {
     if (
@@ -99,7 +100,7 @@ export default function ChatComponent({
       clientRef.current.connected
     ) {
       const message = {
-        sender: username,
+        senderId: userId,
         content: messageInput,
         type: "CHAT",
         eventId: eventId,
@@ -136,23 +137,23 @@ export default function ChatComponent({
           <div
             key={index}
             className={`flex items-start mb-4 ${
-              message.sender === username ? "justify-end" : "justify-start"
+              message.senderId === userId ? "justify-end" : "justify-start"
             }`}
           >
-            {message.sender !== username && (
+            {message.senderId !== userId && (
               <Avatar className="w-8 h-8 mr-2">
                 <AvatarImage
-                  src={message.avatar || `/placeholder-${message.sender}.png`}
-                  alt={`${message.sender} avatar`}
+                  src={message.avatar || `/placeholder-${message.senderId}.png`}
+                  alt={`${message.senderId} avatar`}
                 />
                 <AvatarFallback>
-                  {message.sender === "ai" ? "AI" : "H"}
+                  {message.senderId === "ai" ? "AI" : "H"}
                 </AvatarFallback>
               </Avatar>
             )}
             <div
               className={`max-w-[70%] p-3 rounded-lg ${
-                message.sender === username
+                message.senderId === userId
                   ? isDarkMode
                     ? "bg-[#7a7bff] text-white"
                     : "bg-blue-500 text-white"
@@ -163,10 +164,10 @@ export default function ChatComponent({
             >
               <p className="text-sm">{message.content}</p>
             </div>
-            {message.sender === username && (
+            {message.senderId === userId && (
               <Avatar className="w-8 h-8 ml-2">
                 <AvatarImage src="/user-avatar.png" alt="User avatar" />
-                <AvatarFallback>U</AvatarFallback>
+                <AvatarFallback>{message.sender}</AvatarFallback>
               </Avatar>
             )}
           </div>
