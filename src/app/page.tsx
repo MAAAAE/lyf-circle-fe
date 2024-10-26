@@ -14,14 +14,14 @@ function Qrcode() {
   }, []);
 
   return (
-    <div className="flex flex-col h-screen bg-[#1c1c23] text-white">
-      <main className="flex flex-col items-center justify-center h-screen p-4">
+    <div className="flex flex-col min-h-screen bg-[#1c1c23] text-white">
+      <main className="flex flex-col items-center justify-center min-h-screen p-4">
         <div className="w-full max-w-md bg-[#2c2c35] rounded-lg shadow-lg p-6 flex flex-col items-center">
           <h1 className="text-3xl font-extrabold mb-6 text-[#7a7bff]">
-            lyfCircle
+            Lyf Circle
           </h1>
           <h2 className="text-xl font-semibold mb-6 text-[#7a7bff]">
-            Scan to start
+            Join your circle on lyf
           </h2>
           <div className="p-4 rounded-lg bg-white w-[232px] h-[232px] flex items-center justify-center">
             {isLoading ? (
