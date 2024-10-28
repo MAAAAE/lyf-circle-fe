@@ -17,10 +17,16 @@ import {
 import ChatComponent from "./ChatComponent";
 import useUserIdStore from "../hooks/useUserInfo";
 import { Button } from "@/components/ui/button";
+import { useSwipeable } from "react-swipeable";
 
 interface Attend {
   id: string;
   attend: boolean;
+}
+
+interface Album {
+  id: string;
+  url: string[];
 }
 
 interface Activity {
@@ -143,6 +149,8 @@ export default function Component() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [attend, setAttend] = useState<Attend[]>([]);
+  const [album, setAlbum] = useState<Album[]>([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const handleJoinEvent = (id: string) => {
     setAttend((prev) => {
@@ -167,6 +175,7 @@ export default function Component() {
         const data = await response.json();
         setActivities(data);
 
+        // 참가유무를 파악하기 위한 리스트
         const attendList = [
           ...data.map((item: { id: string }) => ({
             id: item.id,
@@ -262,6 +271,54 @@ export default function Component() {
       )
     );
   };
+
+  //이미지 업로드
+  // 원래라면 DB에 접속해야 하겠지만 State 조작으로 끝
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!selectedActivity) return;
+
+    const file = event.target.files?.[0];
+    if (file) {
+      const fileURL = URL.createObjectURL(file);
+
+      setAlbum((prevAlbum) => {
+        const existingEntry = prevAlbum.find(
+          (item) => item.id === selectedActivity.id
+        );
+
+        if (existingEntry) {
+          return prevAlbum.map((item) =>
+            item.id === selectedActivity.id
+              ? { ...item, url: [...item.url, fileURL] }
+              : item
+          );
+        } else {
+          return [...prevAlbum, { id: selectedActivity.id, url: [fileURL] }];
+        }
+      });
+    }
+  };
+
+  //이미지 카로셀 컨트롤
+
+  const handleNextImage = (urls: string[]) => {
+    setCurrentImageIndex((prevIndex) => (prevIndex + 1) % urls.length);
+  };
+
+  const handlePreviousImage = (urls: string[]) => {
+    setCurrentImageIndex((prevIndex) =>
+      prevIndex === 0 ? urls.length - 1 : prevIndex - 1
+    );
+  };
+
+  const currentAlbum = album.find((item) => item.id === selectedActivity?.id);
+  // 스와이프 핸들러
+
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: () => currentAlbum && handleNextImage(currentAlbum.url),
+    onSwipedRight: () => currentAlbum && handlePreviousImage(currentAlbum.url),
+    trackMouse: true,
+  });
 
   return (
     <div
@@ -395,6 +452,41 @@ export default function Component() {
                 <></>
               )}
 
+              {selectedActivity &&
+                currentAlbum &&
+                currentAlbum.url.length > 0 && (
+                  <div
+                    {...swipeHandlers}
+                    style={{
+                      overflow: "hidden",
+                      width: "300px",
+                      height: "300px",
+                      position: "relative",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        transition: "transform 0.5s ease",
+                        transform: `translateX(-${currentImageIndex * 300}px)`,
+                      }}
+                    >
+                      {currentAlbum.url.map((url, index) => (
+                        <img
+                          key={`${currentAlbum.id}-${index}`}
+                          src={url}
+                          alt={`Image ${index + 1} for ${selectedActivity.id}`}
+                          style={{
+                            width: "300px",
+                            height: "300px",
+                            objectFit: "cover",
+                            flexShrink: 0,
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
               <div className="space-y-6 flex flex-col flex-grow">
                 <div className="mt-6 flex-grow flex justify-center">
                   {attend.length > 0 &&
@@ -424,27 +516,40 @@ export default function Component() {
                     </button>
                   ) : (
                     selectedActivity && (
-                      <ChatComponent
-                        isDarkMode={isDarkMode}
-                        onNewMessage={() =>
-                          handleNewMessage(selectedActivity.id)
-                        }
-                        userId={user_id}
-                        initialMessages={[
-                          {
-                            content:
-                              "Welcome, new participant! Please say hello to new friend!",
-                            sender: "host",
-                            senderId: "ai",
-                            type: "CHAT",
-                            eventId: selectedActivity.id.toString(),
-                            timestamp: "NOW",
-                            avatar:
-                              "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/lyf-avatar-tyQsPYtUM3rhuC06Vl0WKayntr1KIV.webp",
-                          },
-                        ]}
-                        eventId={selectedActivity.id.toString()}
-                      />
+                      <div className="flex flex-col">
+                        <ChatComponent
+                          isDarkMode={isDarkMode}
+                          onNewMessage={() =>
+                            handleNewMessage(selectedActivity.id)
+                          }
+                          userId={user_id}
+                          initialMessages={[
+                            {
+                              content:
+                                "Welcome, new participant! Please say hello to new friend!",
+                              sender: "host",
+                              senderId: "ai",
+                              type: "CHAT",
+                              eventId: selectedActivity.id.toString(),
+                              timestamp: "NOW",
+                              avatar:
+                                "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/lyf-avatar-tyQsPYtUM3rhuC06Vl0WKayntr1KIV.webp",
+                            },
+                          ]}
+                          eventId={selectedActivity.id.toString()}
+                        />
+                        <Button>
+                          <label>
+                            Share Image
+                            <input
+                              type="file"
+                              accept="image/*"
+                              style={{ display: "none" }}
+                              onChange={handleImageUpload}
+                            />
+                          </label>
+                        </Button>
+                      </div>
                     )
                   )}
                 </div>
