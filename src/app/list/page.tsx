@@ -118,7 +118,7 @@ export default function Component() {
       name: "Halloween 2024",
       date: { month: 10, day: 28, weekday: "Mon", time: "10:00" },
       // icebreaker:
-        // "'Two Truths and a Lie' - Each participant takes turns telling three statements about themselves; two are true and one is false. Others guess which is the lie.",
+      // "'Two Truths and a Lie' - Each participant takes turns telling three statements about themselves; two are true and one is false. Others guess which is the lie.",
       participants: 10,
       emoji: "🎃",
       location: "lyf Funan Singapore",
@@ -401,17 +401,27 @@ export default function Component() {
                   selectedActivity &&
                   attend.find((a) => a.id === selectedActivity.id)?.attend ===
                     false ? (
-                    <Button
-                      type="button"
+                    <button
                       onClick={() => handleJoinEvent(selectedActivity.id)}
-                      className={`justify-center ${
-                        isDarkMode
-                          ? "bg-[#7a7bff] text-white hover:bg-[#7a7bff] hover:text-white active:bg-[#7a7bff] active:text-white"
-                          : "bg-blue-600 text-white hover:bg-blue-600 hover:text-white active:bg-blue-600 active:text-white"
-                      }`}
+                      className="flex items-center justify-center w-full px-4 py-2 text-xl font-semibold text-white transition-all duration-300 bg-[#7a7bff] rounded-md outline-none ring-2 ring-[#7a7bff] ring-offset-2 ring-offset-gray-900 group"
                     >
+                      <span className="mr-2">{selectedActivity.emoji}</span>
                       Join the Event
-                    </Button>
+                      <svg
+                        className="w-5 h-5 ml-2 transition-transform duration-300 ease-in-out transform group-hover:translate-x-1"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 7l5 5m0 0l-5 5m5-5H6"
+                        />
+                      </svg>
+                    </button>
                   ) : (
                     selectedActivity && (
                       <ChatComponent
