@@ -272,12 +272,12 @@ export default function Component() {
         // zustand에 유저 id저장
         setUser_id(result.id);
         console.log("User registered successfully:", result);
-
-        // Redirect to the list page after successful registration
         router.push("/list");
       } catch (error) {
         console.error("Error registering user:", error);
-        // You may want to add error handling here, such as displaying an error message to the user
+        //테스트용 기록, 강제 전송
+        console.log(formData);
+        router.push("/list");
       }
     }
   };
@@ -484,11 +484,11 @@ export default function Component() {
                   className={`justify-center ${
                     isDarkMode
                       ? formData.hobbies.includes(option)
-                        ? "bg-[#7a7bff] text-white"
-                        : "bg-[#3c3c45] text-white"
+                        ? "bg-[#7a7bff] text-white hover:bg-[#7a7bff] hover:text-white active:bg-[#7a7bff] active:text-white"
+                        : "bg-[#3c3c45] text-white hover:bg-[#3c3c45] hover:text-white active:bg-[#3c3c45] active:text-white"
                       : formData.hobbies.includes(option)
-                      ? "bg-blue-600 text-white"
-                      : "bg-white text-gray-900"
+                      ? "bg-blue-600 text-white hover:bg-blue-600 hover:text-white active:bg-blue-600 active:text-white"
+                      : "bg-white text-gray-900 hover:bg-white hover:text-gray-900 active:bg-white active:text-gray-900"
                   }`}
                   onClick={() => handleMultipleChoice(option, "hobbies")}
                 >
@@ -516,11 +516,11 @@ export default function Component() {
                   className={`${
                     isDarkMode
                       ? formData.times.includes(time)
-                        ? "bg-[#7a7bff] text-white"
-                        : "bg-[#3c3c45] text-white"
+                        ? "bg-[#7a7bff] text-white hover:bg-[#7a7bff] hover:text-white active:bg-[#7a7bff] active:text-white"
+                        : "bg-[#3c3c45] text-white hover:bg-[#3c3c45] hover:text-white active:bg-[#3c3c45] active:text-white"
                       : formData.times.includes(time)
-                      ? "bg-blue-600 text-white"
-                      : "bg-white text-gray-900"
+                      ? "bg-blue-600 text-white hover:bg-blue-600 hover:text-white active:bg-blue-600 active:text-white"
+                      : "bg-white text-gray-900 hover:bg-white hover:text-gray-900 active:bg-white active:text-gray-900"
                   }`}
                   onClick={() => handleTimeSelection(time)}
                 >
@@ -679,11 +679,11 @@ export default function Component() {
                       className={`flex-1 ${
                         isDarkMode
                           ? formData.characteristics.includes(pair.left)
-                            ? "bg-[#7a7bff] text-white"
-                            : "bg-[#3c3c45] text-white"
+                            ? "bg-[#7a7bff] text-white hover:bg-[#7a7bff] hover:text-white active:bg-[#7a7bff] active:text-white"
+                            : "bg-[#3c3c45] text-white hover:bg-[#3c3c45] hover:text-white active:bg-[#3c3c45] active:text-white"
                           : formData.characteristics.includes(pair.left)
-                          ? "bg-blue-600 text-white"
-                          : "bg-white text-gray-900"
+                          ? "bg-blue-600 text-white hover:bg-blue-600 hover:text-white active:bg-blue-600 active:text-white"
+                          : "bg-white text-gray-900 hover:bg-white hover:text-gray-900 active:bg-white active:text-gray-900"
                       }`}
                     >
                       {pair.left}
@@ -699,11 +699,11 @@ export default function Component() {
                       className={`flex-1 ${
                         isDarkMode
                           ? formData.characteristics.includes(pair.right)
-                            ? "bg-[#7a7bff] text-white"
-                            : "bg-[#3c3c45] text-white"
+                            ? "bg-[#7a7bff] text-white hover:bg-[#7a7bff] hover:text-white active:bg-[#7a7bff] active:text-white"
+                            : "bg-[#3c3c45] text-white hover:bg-[#3c3c45] hover:text-white active:bg-[#3c3c45] active:text-white"
                           : formData.characteristics.includes(pair.right)
-                          ? "bg-blue-600 text-white"
-                          : "bg-white text-gray-900"
+                          ? "bg-blue-600 text-white hover:bg-blue-600 hover:text-white active:bg-blue-600 active:text-white"
+                          : "bg-white text-gray-900 hover:bg-white hover:text-gray-900 active:bg-white active:text-gray-900"
                       }`}
                     >
                       {pair.right}
