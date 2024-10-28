@@ -22,7 +22,7 @@ interface ChatComponentProps {
   initialMessages?: Message[];
   eventId: string; // 이벤트 ID를 prop으로 전달
   userId: string; // 사용자 이름을 prop으로 전달
-  onNewMessage?: ()=>void;
+  onNewMessage?: () => void;
 }
 
 export default function ChatComponent({
@@ -126,7 +126,7 @@ export default function ChatComponent({
         isDarkMode ? "bg-[#2c2c35]" : "bg-white"
       } rounded-lg shadow-lg p-4`}
     >
-      <h3 className="text-xl font-semibold mb-4">채팅</h3>
+      <h3 className="text-xl font-semibold mb-4">Chat</h3>
       <div
         ref={chatContainerRef}
         className={`h-80 overflow-y-auto mb-4 p-4 ${
@@ -188,7 +188,7 @@ export default function ChatComponent({
           type="text"
           value={messageInput}
           onChange={(e) => setMessageInput(e.target.value)}
-          placeholder="메시지를 입력하세요..."
+          placeholder="Input messages"
           className={`flex-1 p-2 rounded-lg ${
             isDarkMode ? "bg-[#3c3c45] text-white" : "bg-gray-100 text-gray-900"
           } focus:outline-none focus:ring-2 focus:ring-[#7a7bff]`}
@@ -199,7 +199,7 @@ export default function ChatComponent({
           className={`p-2 rounded-lg ${
             isDarkMode ? "bg-[#7a7bff] text-white" : "bg-blue-500 text-white"
           } hover:opacity-90 transition-opacity duration-200`}
-          aria-label="메시지 보내기"
+          aria-label="send message"
         >
           <Send className="w-5 h-5" />
         </button>

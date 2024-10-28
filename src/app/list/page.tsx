@@ -16,9 +16,15 @@ import {
 } from "lucide-react";
 import ChatComponent from "./ChatComponent";
 import useUserIdStore from "../hooks/useUserInfo";
+import { Button } from "@/components/ui/button";
+
+interface Attend {
+  id: string;
+  attend: boolean;
+}
 
 interface Activity {
-  id: number;
+  id: string;
   name: string;
   date: {
     month: number;
@@ -45,7 +51,7 @@ export default function Component() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [activities, setActivities] = useState<Activity[]>([
     {
-      id: 1,
+      id: "1",
       name: "Gardens by the Bay Yoga Session",
       date: { month: 5, day: 20, weekday: "Sat", time: "07:30" },
       icebreaker: "ice",
@@ -57,7 +63,7 @@ export default function Component() {
       hasNewMessages: true,
     },
     {
-      id: 2,
+      id: "2",
       name: "Night Cycling at East Coast Park",
       date: { month: 5, day: 21, weekday: "Sun", time: "19:30" },
       icebreaker: "ice",
@@ -69,7 +75,7 @@ export default function Component() {
       hasNewMessages: false,
     },
     {
-      id: 3,
+      id: "3",
       name: "Peranakan Cuisine Cooking Class",
       date: { month: 5, day: 22, weekday: "Mon", time: "11:00" },
       icebreaker: "ice",
@@ -81,7 +87,7 @@ export default function Component() {
       hasNewMessages: true,
     },
     {
-      id: 4,
+      id: "4",
       name: "Sentosa Island Segway Tour",
       date: { month: 5, day: 27, weekday: "Sat", time: "14:00" },
       icebreaker: "ice",
@@ -93,7 +99,7 @@ export default function Component() {
       hasNewMessages: false,
     },
     {
-      id: 5,
+      id: "5",
       name: "Batik Painting Workshop",
       date: { month: 5, day: 31, weekday: "Wed", time: "16:00" },
       icebreaker: "ice",
@@ -108,8 +114,8 @@ export default function Component() {
 
   const [lyfEvent, setLyfEvent] = useState<Activity[]>([
     {
-      id: 0,
-      name: "lyf Funan Singapore Halloween 2024",
+      id: "ewfoij0",
+      name: "Halloween 2024",
       date: { month: 10, day: 28, weekday: "Mon", time: "10:00" },
       icebreaker:
         "'Two Truths and a Lie' - Each participant takes turns telling three statements about themselves; two are true and one is false. Others guess which is the lie.",
@@ -117,12 +123,12 @@ export default function Component() {
       emoji: "🎃",
       location: "lyf Funan Singapore",
       description:
-        "[RESIDENT EXCLUSIVE] Join us for a spooky halloween 2024! Make your own witches potions art & craft and bring your little ones to make their own pumpkin using playdough, or even get a DIY halloween mask to celebrate the occassion! Come together on the eve of halloween to try your hand at making your own unique halloween themed mocktail at our 'Potion Bar'. See you there!",
+        "Join us for a spooky halloween 2024! Make your own witches potions art & craft and bring your little ones to make their own pumpkin using playdough, or even get a DIY halloween mask to celebrate the occassion! Come together on the eve of halloween to try your hand at making your own unique halloween themed mocktail at our 'Potion Bar'. See you there!",
       hasNewMessages: false,
     },
     {
-      id: 1,
-      name: "lyf x This.Connect - Pay It Forward Movement",
+      id: "1sefsef",
+      name: "Pay It Forward Movement",
       date: { month: 11, day: 15, weekday: "Fri", time: "14:00" },
       icebreaker:
         "'Two Truths and a Lie' - Each participant takes turns telling three statements about themselves; two are true and one is false. Others guess which is the lie.",
@@ -130,12 +136,25 @@ export default function Component() {
       emoji: "💌",
       location: "lyf Funan Singapore",
       description:
-        "[RESIDENT EXCLUSIVE] Write well wishes on a postcard and pass it forward to someone or a random stranger! The intention of this movement is to create the ripple effect of the kind wishes to spark lights in people's lives so that they know they are not alone. You never know who may just need that ounce of light in their life.",
+        "Write well wishes on a postcard and pass it forward to someone or a random stranger! The intention of this movement is to create the ripple effect of the kind wishes to spark lights in people's lives so that they know they are not alone. You never know who may just need that ounce of light in their life.",
       hasNewMessages: false,
     },
   ]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [attend, setAttend] = useState<Attend[]>([]);
+
+  const handleJoinEvent = (id: string) => {
+    setAttend((prev) => {
+      return prev.map((A) => {
+        if (A.id === id) {
+          // DB통신을 통해 해당 이벤트의 참여자 +1을 해주는 부분
+          return { ...A, attend: true }; //  attend 값을 true로 설정
+        }
+        return A;
+      });
+    });
+  };
 
   useEffect(() => {
     const fetchActivities = async () => {
@@ -147,9 +166,38 @@ export default function Component() {
         }
         const data = await response.json();
         setActivities(data);
+
+        const attendList = [
+          ...data.map((item: { id: string }) => ({
+            id: item.id,
+            attend: false,
+          })),
+          ...lyfEvent.map((event: { id: string }) => ({
+            id: event.id,
+            attend: false,
+          })),
+        ];
+
+        setAttend(attendList);
+
         setIsLoading(false);
       } catch (err) {
         setError("Failed to load activities. Please try again later." + err);
+
+        //목업용 설정데이터
+        const attendList = [
+          ...activities.map((item: { id: string }) => ({
+            id: item.id,
+            attend: false,
+          })),
+          ...lyfEvent.map((event: { id: string }) => ({
+            id: event.id,
+            attend: false,
+          })),
+        ];
+
+        setAttend(attendList);
+
         setIsLoading(false);
       }
     };
@@ -207,7 +255,7 @@ export default function Component() {
     }, 300);
   };
 
-  const handleNewMessage = (activityId: number) => {
+  const handleNewMessage = (activityId: string) => {
     setActivities((prevActivities) =>
       prevActivities.map((a) =>
         a.id === activityId ? { ...a, hasNewMessages: true } : a
@@ -343,26 +391,47 @@ export default function Component() {
                 </p>
               </div>
               <div className="space-y-6 flex flex-col flex-grow">
-                <div className="mt-6 flex-grow">
-                  <ChatComponent
-                    isDarkMode={isDarkMode}
-                    onNewMessage={() => handleNewMessage(selectedActivity.id)}
-                    userId={user_id}
-                    initialMessages={[
-                      {
-                        content:
-                          "Welcome, new participant! Please say hello to new friend!",
-                        sender: "host",
-                        senderId: "ai",
-                        type: "CHAT",
-                        eventId: selectedActivity.id.toString(),
-                        timestamp: "NOW",
-                        avatar:
-                          "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/lyf-avatar-tyQsPYtUM3rhuC06Vl0WKayntr1KIV.webp",
-                      },
-                    ]}
-                    eventId={selectedActivity.id.toString()}
-                  />
+                <div className="mt-6 flex-grow flex justify-center">
+                  {attend.length > 0 &&
+                  selectedActivity &&
+                  attend.find((a) => a.id === selectedActivity.id)?.attend ===
+                    false ? (
+                    <Button
+                      type="button"
+                      onClick={() => handleJoinEvent(selectedActivity.id)}
+                      className={`justify-center ${
+                        isDarkMode
+                          ? "bg-[#7a7bff] text-white hover:bg-[#7a7bff] hover:text-white active:bg-[#7a7bff] active:text-white"
+                          : "bg-blue-600 text-white hover:bg-blue-600 hover:text-white active:bg-blue-600 active:text-white"
+                      }`}
+                    >
+                      Join the Event
+                    </Button>
+                  ) : (
+                    selectedActivity && (
+                      <ChatComponent
+                        isDarkMode={isDarkMode}
+                        onNewMessage={() =>
+                          handleNewMessage(selectedActivity.id)
+                        }
+                        userId={user_id}
+                        initialMessages={[
+                          {
+                            content:
+                              "Welcome, new participant! Please say hello to new friend!",
+                            sender: "host",
+                            senderId: "ai",
+                            type: "CHAT",
+                            eventId: selectedActivity.id.toString(),
+                            timestamp: "NOW",
+                            avatar:
+                              "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/lyf-avatar-tyQsPYtUM3rhuC06Vl0WKayntr1KIV.webp",
+                          },
+                        ]}
+                        eventId={selectedActivity.id.toString()}
+                      />
+                    )
+                  )}
                 </div>
               </div>
             </div>
@@ -406,17 +475,17 @@ export default function Component() {
               ) : (
                 <div>
                   {/* 라이프 주최 이벤트들 */}
-                  <div
-                    className={`mb-8 p-4 ${
-                      isDarkMode ? "bg-[#252530]" : "bg-white"
-                    } rounded-lg shadow-lg`}
-                  >
+                  <div>
                     <h3
                       className={`text-xl font-semibold mb-4 ${
                         isDarkMode ? "text-[#7a7bff]" : "text-blue-600"
                       }`}
+                      style={{
+                        opacity: 0,
+                        animation: `fadeIn 0.3s ease-out ${0}s forwards`,
+                      }}
                     >
-                      lyf-hosted Events
+                      lyf Official
                     </h3>
                     {lyfEvent
                       .slice(0, visibleItems)
@@ -424,7 +493,7 @@ export default function Component() {
                         <div
                           className={`mb-4 p-4 ${
                             isDarkMode ? "bg-[#2c2c35]" : "bg-white"
-                          } rounded-lg shadow-lg`}
+                          } rounded-lg shadow-lg border-2 border-[#7a7bff] `}
                           onClick={() => handleActivityClick(activity)}
                           role="button"
                           tabIndex={0}
@@ -436,7 +505,7 @@ export default function Component() {
                             }s forwards`,
                           }}
                         >
-                          <div className="flex c items-center justify-between mb-3">
+                          <div className="flex items-center justify-between mb-3">
                             <div className="flex items-center">
                               <span
                                 className="text-3xl mr-3"
@@ -446,7 +515,7 @@ export default function Component() {
                                 {activity.emoji}
                               </span>
                               <div>
-                                <h3 className="text-xl font-semibold">
+                                <h3 className="text-xl font-semibold line-clamp-2">
                                   {activity.name}
                                 </h3>
                                 <div
@@ -463,25 +532,53 @@ export default function Component() {
                             </div>
                             <div
                               className={`${
-                                isDarkMode ? "bg-[#2c2c35]" : "bg-gray-200"
-                              } px-3 py-1 rounded-full flex items-center`}
+                                isDarkMode ? "bg-[#3c3c45]" : "bg-gray-200"
+                              } px-4 py-2 rounded-full flex-col`}
                             >
-                              <Calendar className="w-4 h-4 mr-1" />
-                              <span className="text-sm font-medium">
-                                {activity.date.month}/{activity.date.day}
-                              </span>
-                              <span
+                              <div className="flex">
+                                <Calendar className="w-4 h-4 mr-1" />
+                                <span className="text-sm font-medium">
+                                  {activity.date.month}/{activity.date.day}
+                                </span>
+                              </div>
+                              <div
                                 className={`text-xs ${
                                   isDarkMode ? "text-gray-400" : "text-gray-600"
                                 } ml-1`}
                               >
                                 {activity.date.weekday} {activity.date.time}
-                              </span>
+                              </div>
                             </div>
                           </div>
                           <div className="flex  items-center mt-3 justify-between">
                             <div className="flex items-center">
-                                       
+                              <div className="flex -space-x-2">
+                                {[
+                                  ...Array(Math.min(3, activity.participants)),
+                                ].map((_, i) => (
+                                  <div
+                                    key={i}
+                                    className={`w-8 h-8 rounded-full ${
+                                      isDarkMode
+                                        ? "bg-[#3c3c45] border-[#2c2c35]"
+                                        : "bg-gray-300 border-white"
+                                    } border-2 flex items-center justify-center text-xs font-semibold`}
+                                  >
+                                    {String.fromCharCode(65 + i)}
+                                  </div>
+                                ))}
+                                {activity.participants > 3 && (
+                                  <div
+                                    className={`w-8 h-8 rounded-full ${
+                                      isDarkMode
+                                        ? "bg-[#3c3c45] border-[#2c2c35]"
+                                        : "bg-gray-300 border-white"
+                                    } border-2 flex items-center justify-center text-xs font-semibold`}
+                                  >
+                                    +{activity.participants - 3}
+                                  </div>
+                                )}
+                              </div>
                               <span
                                 className={`text-sm ${
                                   isDarkMode ? "text-gray-400" : "text-gray-600"
@@ -490,123 +587,149 @@ export default function Component() {
                                 participants : {activity.participants}
                               </span>
                             </div>
+                            <div
+                              className={`text-sm font-semibold ${
+                                isDarkMode ? "text-[#7a7bff]" : "text-blue-600"
+                              }`}
+                            >
+                              Sponsored by lyf
+                            </div>
                           </div>
                         </div>
                       ))}
                   </div>
 
                   {/* AI 주최 이벤트들 */}
-                  {activities
-                    .slice(0, visibleItems)
-                    .map((activity: Activity, index: number) => (
-                      <div
-                        key={activity.id}
-                        className={`mb-4 p-4 ${
-                          isDarkMode ? "bg-[#2c2c35]" : "bg-white"
-                        } rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 cursor-pointer`}
-                        style={{
-                          opacity: 0,
-                          animation: `fadeIn 0.3s ease-out ${
-                            index * 0.05
-                          }s forwards`,
-                        }}
-                        onClick={() => handleActivityClick(activity)}
-                        role="button"
-                        tabIndex={0}
-                        aria-label={`${activity.name} 상세 정보 보기`}
-                      >
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center">
-                            <span
-                              className="text-3xl mr-3"
-                              role="img"
-                              aria-label={activity.name}
-                            >
-                              {activity.emoji}
-                            </span>
-                            <div>
-                              <h3 className="text-xl font-semibold">
-                                {activity.name}
-                              </h3>
-                              <div
-                                className={`flex items-center text-sm ${
-                                  isDarkMode ? "text-gray-400" : "text-gray-600"
-                                } mt-1`}
+                  <div>
+                    <h3
+                      className={`text-xl font-semibold mb-4 ${
+                        isDarkMode ? "text-[#7a7bff]" : "text-blue-600"
+                      }`}
+                      style={{
+                        opacity: 0,
+                        animation: `fadeIn 0.3s ease-out ${0}s forwards`,
+                      }}
+                    >
+                      Tailored Event
+                    </h3>
+                    {activities
+                      .slice(0, visibleItems)
+                      .map((activity: Activity, index: number) => (
+                        <div
+                          key={activity.id}
+                          className={`mb-4 p-4 ${
+                            isDarkMode ? "bg-[#2c2c35]" : "bg-white"
+                          } rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 cursor-pointer`}
+                          style={{
+                            opacity: 0,
+                            animation: `fadeIn 0.3s ease-out ${
+                              index * 0.05
+                            }s forwards`,
+                          }}
+                          onClick={() => handleActivityClick(activity)}
+                          role="button"
+                          tabIndex={0}
+                          aria-label={`${activity.name} 상세 정보 보기`}
+                        >
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center">
+                              <span
+                                className="text-3xl mr-3"
+                                role="img"
+                                aria-label={activity.name}
                               >
-                                <MapPin className="w-4 h-4 mr-1" />
-                                <span>{activity.location}</span>
+                                {activity.emoji}
+                              </span>
+                              <div>
+                                <h3 className="text-xl font-semibold line-clamp-2">
+                                  {activity.name}
+                                </h3>
+                                <div
+                                  className={`flex items-center text-sm ${
+                                    isDarkMode
+                                      ? "text-gray-400"
+                                      : "text-gray-600"
+                                  } mt-1`}
+                                >
+                                  <MapPin className="w-4 h-4 mr-1" />
+                                  <span>{activity.location}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div
+                              className={`${
+                                isDarkMode ? "bg-[#3c3c45]" : "bg-gray-200"
+                              } px-4 py-2 rounded-full flex-col`}
+                            >
+                              <div className="flex">
+                                <Calendar className="w-4 h-4 mr-1" />
+                                <span className="text-sm font-medium">
+                                  {activity.date.month}/{activity.date.day}
+                                </span>
+                              </div>
+                              <div
+                                className={`text-xs ${
+                                  isDarkMode ? "text-gray-400" : "text-gray-600"
+                                } ml-1 whitespace-nowrap`}
+                              >
+                                {activity.date.weekday} {activity.date.time}
                               </div>
                             </div>
                           </div>
-                          <div
-                            className={`${
-                              isDarkMode ? "bg-[#3c3c45]" : "bg-gray-200"
-                            } px-3 py-1 rounded-full flex items-center`}
-                          >
-                            <Calendar className="w-4 h-4 mr-1" />
-                            <span className="text-sm font-medium">
-                              {activity.date.month}/{activity.date.day}
-                            </span>
-                            <span
-                              className={`text-xs ${
-                                isDarkMode ? "text-gray-400" : "text-gray-600"
-                              } ml-1`}
-                            >
-                              {activity.date.weekday} {activity.date.time}
-                            </span>
+                          <div className="flex items-center mt-3 justify-between">
+                            <div className="flex items-center">
+                              <div className="flex -space-x-2">
+                                {[
+                                  ...Array(Math.min(3, activity.participants)),
+                                ].map((_, i) => (
+                                  <div
+                                    key={i}
+                                    className={`w-8 h-8 rounded-full ${
+                                      isDarkMode
+                                        ? "bg-[#3c3c45] border-[#2c2c35]"
+                                        : "bg-gray-300 border-white"
+                                    } border-2 flex items-center justify-center text-xs font-semibold`}
+                                  >
+                                    {String.fromCharCode(65 + i)}
+                                  </div>
+                                ))}
+                                {activity.participants > 3 && (
+                                  <div
+                                    className={`w-8 h-8 rounded-full ${
+                                      isDarkMode
+                                        ? "bg-[#3c3c45] border-[#2c2c35]"
+                                        : "bg-gray-300 border-white"
+                                    } border-2 flex items-center justify-center text-xs font-semibold`}
+                                  >
+                                    +{activity.participants - 3}
+                                  </div>
+                                )}
+                              </div>
+                              <span
+                                className={`text-sm ${
+                                  isDarkMode ? "text-gray-400" : "text-gray-600"
+                                } ml-3`}
+                              >
+                                participants : {activity.participants}
+                              </span>
+                            </div>
+                            {activity.hasNewMessages && (
+                              <div
+                                className={`flex items-center ${
+                                  isDarkMode
+                                    ? "text-[#7a7bff]"
+                                    : "text-blue-600"
+                                }`}
+                              >
+                                <MessageCircle className="w-5 h-5 mr-1" />
+                                <span className="text-sm font-medium">new</span>
+                              </div>
+                            )}
                           </div>
                         </div>
-                        <div className="flex items-center mt-3 justify-between">
-                          <div className="flex items-center">
-                            <div className="flex -space-x-2">
-                              {[
-                                ...Array(Math.min(3, activity.participants)),
-                              ].map((_, i) => (
-                                <div
-                                  key={i}
-                                  className={`w-8 h-8 rounded-full ${
-                                    isDarkMode
-                                      ? "bg-[#3c3c45] border-[#2c2c35]"
-                                      : "bg-gray-300 border-white"
-                                  } border-2 flex items-center justify-center text-xs font-semibold`}
-                                >
-                                  {String.fromCharCode(65 + i)}
-                                </div>
-                              ))}
-                              {activity.participants > 3 && (
-                                <div
-                                  className={`w-8 h-8 rounded-full ${
-                                    isDarkMode
-                                      ? "bg-[#3c3c45] border-[#2c2c35]"
-                                      : "bg-gray-300 border-white"
-                                  } border-2 flex items-center justify-center text-xs font-semibold`}
-                                >
-                                  +{activity.participants - 3}
-                                </div>
-                              )}
-                            </div>
-                            <span
-                              className={`text-sm ${
-                                isDarkMode ? "text-gray-400" : "text-gray-600"
-                              } ml-3`}
-                            >
-                              participants : {activity.participants}
-                            </span>
-                          </div>
-                          {activity.hasNewMessages && (
-                            <div
-                              className={`flex items-center ${
-                                isDarkMode ? "text-[#7a7bff]" : "text-blue-600"
-                              }`}
-                            >
-                              <MessageCircle className="w-5 h-5 mr-1" />
-                              <span className="text-sm font-medium">new</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  {/* 닫기 */}
+                      ))}
+                    {/* 닫기 */}
+                  </div>
                 </div>
               )}
             </div>
