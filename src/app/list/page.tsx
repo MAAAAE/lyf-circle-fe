@@ -32,7 +32,7 @@ interface Activity {
     weekday: string;
     time: string;
   };
-  icebreaker: string;
+  icebreaker?: string;
   participants: number;
   emoji: string;
   location: string;
@@ -117,8 +117,8 @@ export default function Component() {
       id: "ewfoij0",
       name: "Halloween 2024",
       date: { month: 10, day: 28, weekday: "Mon", time: "10:00" },
-      icebreaker:
-        "'Two Truths and a Lie' - Each participant takes turns telling three statements about themselves; two are true and one is false. Others guess which is the lie.",
+      // icebreaker:
+        // "'Two Truths and a Lie' - Each participant takes turns telling three statements about themselves; two are true and one is false. Others guess which is the lie.",
       participants: 10,
       emoji: "🎃",
       location: "lyf Funan Singapore",
@@ -375,21 +375,26 @@ export default function Component() {
                 {selectedActivity.description}
               </p>
 
-              <div
-                className={`mb-6 ${
-                  isDarkMode
-                    ? "bg-[#4a3f8f] text-white"
-                    : "bg-blue-100 text-blue-900"
-                } rounded-lg p-6 shadow-lg transform transition-transform duration-200`}
-              >
-                <div className="flex items-center mb-4">
-                  <IceCream className="w-8 h-8 mr-3" />
-                  <h3 className="text-2xl font-bold">Icebreaker</h3>
+              {selectedActivity.icebreaker ? (
+                <div
+                  className={`mb-6 ${
+                    isDarkMode
+                      ? "bg-[#4a3f8f] text-white"
+                      : "bg-blue-100 text-blue-900"
+                  } rounded-lg p-6 shadow-lg transform transition-transform duration-200`}
+                >
+                  <div className="flex items-center mb-4">
+                    <IceCream className="w-8 h-8 mr-3" />
+                    <h3 className="text-2xl font-bold">Icebreaker</h3>
+                  </div>
+                  <p className="text-xl leading-relaxed italic">
+                    &ldquo;{selectedActivity.icebreaker}&rdquo;
+                  </p>
                 </div>
-                <p className="text-xl leading-relaxed italic">
-                  &ldquo;{selectedActivity.icebreaker}&rdquo;
-                </p>
-              </div>
+              ) : (
+                <></>
+              )}
+
               <div className="space-y-6 flex flex-col flex-grow">
                 <div className="mt-6 flex-grow flex justify-center">
                   {attend.length > 0 &&
