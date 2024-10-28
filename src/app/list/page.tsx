@@ -510,6 +510,7 @@ export default function Component() {
                       .slice(0, visibleItems)
                       .map((activity: Activity, index: number) => (
                         <div
+                          key={activity.id}
                           className={`mb-4 p-4 ${
                             isDarkMode ? "bg-[#2c2c35]" : "bg-white"
                           } rounded-lg shadow-lg border-2 border-[#7a7bff] `}
