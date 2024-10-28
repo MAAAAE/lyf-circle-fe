@@ -36,7 +36,7 @@ function Qrcode() {
                   width: 200,
                   color: {
                     dark: "#010599FF",
-                    light: "#FFBF60FF",
+                    light: "#FFF",
                   },
                 }}
               />
