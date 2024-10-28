@@ -126,7 +126,7 @@ export default function ChatComponent({
         isDarkMode ? "bg-[#2c2c35]" : "bg-white"
       } rounded-lg shadow-lg p-4`}
     >
-      <h3 className="text-xl font-semibold mb-4">채팅</h3>
+      <h3 className="text-xl font-semibold mb-4">Chat</h3>
       <div
         ref={chatContainerRef}
         className={`h-80 overflow-y-auto mb-4 p-4 ${
