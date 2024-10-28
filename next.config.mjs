@@ -5,6 +5,10 @@ const nextConfig = {
         source: "/api/:path*",
         destination: "http://localhost:8080/api/:path*",
       },
+      {
+        source: "/ws-chat/:path*",
+        destination: "http://localhost:8080/api/ws-chat/:path*",
+      },
     ];
   },
   images: {

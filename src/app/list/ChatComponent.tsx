@@ -38,7 +38,7 @@ export default function ChatComponent({
 
   useEffect(() => {
     // STOMP 클라이언트 설정
-    const socket = new SockJS("http://localhost:8080/ws-chat"); // Spring의 WebSocket 엔드포인트
+    const socket = new SockJS("/ws-chat"); // Spring의 WebSocket 엔드포인트
     const client = new Client({
       webSocketFactory: () => socket,
       reconnectDelay: 5000,
