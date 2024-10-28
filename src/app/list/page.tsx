@@ -428,7 +428,7 @@ export default function Component() {
                       }`}
                     >
                       <Users className="w-4 h-4 mr-1" />
-                      <span>participants: {selectedActivity.participants}</span>
+                      <span>participants: {selectedActivity.participants.length}</span>
                     </div>
                   </div>
                 </div>
