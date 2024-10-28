@@ -39,7 +39,7 @@ interface Activity {
     time: string;
   };
   icebreaker?: string;
-  participants: number;
+  participants: string[];
   emoji: string;
   location: string;
   description: string;
@@ -61,7 +61,7 @@ export default function Component() {
       name: "Gardens by the Bay Yoga Session",
       date: { month: 5, day: 20, weekday: "Sat", time: "07:30" },
       icebreaker: "ice",
-      participants: 3,
+      participants: ["Kim", "Choi", "Park"],
       emoji: "🧘",
       location: "Supertree Grove, Gardens by the Bay",
       description:
@@ -73,7 +73,7 @@ export default function Component() {
       name: "Night Cycling at East Coast Park",
       date: { month: 5, day: 21, weekday: "Sun", time: "19:30" },
       icebreaker: "ice",
-      participants: 2,
+      participants: ["Min", "Lee"],
       emoji: "🚴",
       location: "East Coast Park",
       description:
@@ -85,7 +85,7 @@ export default function Component() {
       name: "Peranakan Cuisine Cooking Class",
       date: { month: 5, day: 22, weekday: "Mon", time: "11:00" },
       icebreaker: "ice",
-      participants: 4,
+      participants: ["Min", "Kim", "Yu", "Lee"],
       emoji: "🍲",
       location: "Katong Kitchen Studio",
       description:
@@ -97,7 +97,7 @@ export default function Component() {
       name: "Sentosa Island Segway Tour",
       date: { month: 5, day: 27, weekday: "Sat", time: "14:00" },
       icebreaker: "ice",
-      participants: 2,
+      participants: ["Lu", "Han"],
       emoji: "🛴",
       location: "Sentosa Segway Tours Meeting Point",
       description:
@@ -109,7 +109,7 @@ export default function Component() {
       name: "Batik Painting Workshop",
       date: { month: 5, day: 31, weekday: "Wed", time: "16:00" },
       icebreaker: "ice",
-      participants: 5,
+      participants: ["Lu", "Han", "Kim", "Choi", "Park"],
       emoji: "🎨",
       location: "Kampong Gelam Community Club",
       description:
@@ -125,7 +125,7 @@ export default function Component() {
       date: { month: 10, day: 28, weekday: "Mon", time: "10:00" },
       // icebreaker:
       // "'Two Truths and a Lie' - Each participant takes turns telling three statements about themselves; two are true and one is false. Others guess which is the lie.",
-      participants: 10,
+      participants: ["Lu", "Han", "Kim", "Choi", "Park"],
       emoji: "🎃",
       location: "lyf Funan Singapore",
       description:
@@ -138,7 +138,16 @@ export default function Component() {
       date: { month: 11, day: 15, weekday: "Fri", time: "14:00" },
       icebreaker:
         "'Two Truths and a Lie' - Each participant takes turns telling three statements about themselves; two are true and one is false. Others guess which is the lie.",
-      participants: 50,
+      participants: [
+        "Lu",
+        "Han",
+        "Kim",
+        "Choi",
+        "Park",
+        "Lee",
+        "Alex",
+        "Andrew",
+      ],
       emoji: "💌",
       location: "lyf Funan Singapore",
       description:
@@ -229,7 +238,7 @@ export default function Component() {
           a.date.month * 100 + a.date.day - (b.date.month * 100 + b.date.day)
         );
       } else if (sortBy === "participants") {
-        return b.participants - a.participants;
+        return b.participants.length - a.participants.length;
       }
       return 0;
     });
@@ -686,7 +695,9 @@ export default function Component() {
                             <div className="flex items-center">
                               <div className="flex -space-x-2">
                                 {[
-                                  ...Array(Math.min(3, activity.participants)),
+                                  ...Array(
+                                    Math.min(3, activity.participants.length)
+                                  ),
                                 ].map((_, i) => (
                                   <div
                                     key={i}
@@ -696,10 +707,10 @@ export default function Component() {
                                         : "bg-gray-300 border-white"
                                     } border-2 flex items-center justify-center text-xs font-semibold`}
                                   >
-                                    {String.fromCharCode(65 + i)}
+                                    {activity.participants[i].charAt(0)}
                                   </div>
                                 ))}
-                                {activity.participants > 3 && (
+                                {activity.participants.length > 3 && (
                                   <div
                                     className={`w-8 h-8 rounded-full ${
                                       isDarkMode
@@ -707,7 +718,7 @@ export default function Component() {
                                         : "bg-gray-300 border-white"
                                     } border-2 flex items-center justify-center text-xs font-semibold`}
                                   >
-                                    +{activity.participants - 3}
+                                    +{activity.participants.length - 3}
                                   </div>
                                 )}
                               </div>
@@ -716,7 +727,7 @@ export default function Component() {
                                   isDarkMode ? "text-gray-400" : "text-gray-600"
                                 } ml-3`}
                               >
-                                participants : {activity.participants}
+                                participants : {activity.participants.length}
                               </span>
                             </div>
                             <div
@@ -812,7 +823,9 @@ export default function Component() {
                             <div className="flex items-center">
                               <div className="flex -space-x-2">
                                 {[
-                                  ...Array(Math.min(3, activity.participants)),
+                                  ...Array(
+                                    Math.min(3, activity.participants.length)
+                                  ),
                                 ].map((_, i) => (
                                   <div
                                     key={i}
@@ -822,10 +835,10 @@ export default function Component() {
                                         : "bg-gray-300 border-white"
                                     } border-2 flex items-center justify-center text-xs font-semibold`}
                                   >
-                                    {String.fromCharCode(65 + i)}
+                                    {activity.participants[i].charAt(0)}
                                   </div>
                                 ))}
-                                {activity.participants > 3 && (
+                                {activity.participants.length > 3 && (
                                   <div
                                     className={`w-8 h-8 rounded-full ${
                                       isDarkMode
@@ -833,7 +846,7 @@ export default function Component() {
                                         : "bg-gray-300 border-white"
                                     } border-2 flex items-center justify-center text-xs font-semibold`}
                                   >
-                                    +{activity.participants - 3}
+                                    +{activity.participants.length - 3}
                                   </div>
                                 )}
                               </div>
@@ -842,7 +855,7 @@ export default function Component() {
                                   isDarkMode ? "text-gray-400" : "text-gray-600"
                                 } ml-3`}
                               >
-                                participants : {activity.participants}
+                                participants : {activity.participants.length}
                               </span>
                             </div>
                             {activity.hasNewMessages && (
