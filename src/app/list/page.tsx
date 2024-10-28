@@ -365,7 +365,7 @@ export default function Component() {
             <div
               className={`${
                 isDarkMode ? "bg-[#2c2c35]" : "bg-white"
-              } rounded-lg shadow-lg p-6 flex flex-col flex-grow`}
+              } rounded-lg shadow-lg p-6 flex flex-col flex-grow items-center`}
             >
               <button
                 onClick={handleBackClick}
@@ -465,8 +465,8 @@ export default function Component() {
                     }}
                   >
                     <div
+                      className="flex"
                       style={{
-                        display: "flex",
                         transition: "transform 0.5s ease",
                         transform: `translateX(-${currentImageIndex * 300}px)`,
                       }}
