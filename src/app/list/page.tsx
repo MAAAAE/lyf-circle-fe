@@ -412,9 +412,13 @@ export default function Component() {
                     } rounded-lg shadow-lg`}
                   >
                     <h3
-                      className={`text-xl font-semibold mb-4 ${
-                        isDarkMode ? "text-[#7a7bff]" : "text-blue-600"
-                      }`}
+                        className={`
+                    text-xl font-semibold mb-4 px-4 py-2 rounded-full
+                    ${isDarkMode ? 'bg-gradient-to-r from-purple-600 to-blue-600' : 'bg-gradient-to-r from-blue-400 to-purple-500'}
+                    text-white shadow-lg
+                    animate-pulse
+                    inline-block
+                  `}
                     >
                       lyf-hosted Events
                     </h3>
