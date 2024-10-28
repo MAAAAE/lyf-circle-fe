@@ -12,6 +12,13 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
@@ -144,12 +151,52 @@ export default function Component() {
     times: [],
     characteristics: [],
   });
-  const [languageInput, setLanguageInput] = useState("");
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [isNextDisabled, setIsNextDisabled] = useState(true);
   const { setUser_id } = useUserIdStore();
+
+  const [countries, setCountries] = useState<{ code: string; name: string }[]>(
+    []
+  );
+  const [languages, setLanguages] = useState<{ code: string; name: string }[]>(
+    []
+  );
+
+  useEffect(() => {
+    // Fetch countries and languages data
+    fetch("https://restcountries.com/v3.1/all?fields=name,cca2,languages")
+      .then((response) => response.json())
+      .then((data) => {
+        const sortedCountries = data
+          .map((country: any) => ({
+            code: country.cca2,
+            name: country.name.common,
+          }))
+          .sort((a: { name: string }, b: { name: string }) =>
+            a.name.localeCompare(b.name)
+          );
+        setCountries(sortedCountries);
+
+        const languagesSet = new Set<string>();
+        data.forEach((country: any) => {
+          if (country.languages) {
+            Object.values(country.languages).forEach((lang: any) => {
+              languagesSet.add(lang);
+            });
+          }
+        });
+        const sortedLanguages = Array.from(languagesSet)
+          .map((lang: any) => ({
+            code: lang,
+            name: lang,
+          }))
+          .sort((a, b) => a.name.localeCompare(b.name));
+        setLanguages(sortedLanguages);
+      })
+      .catch((error) => console.error("Error fetching data:", error));
+  }, []);
 
   useEffect(() => {
     validateCurrentQuestion();
@@ -190,6 +237,18 @@ export default function Component() {
       default:
         setIsNextDisabled(false);
     }
+  };
+  const handleLanguageChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      langs: prev.langs.includes(value)
+        ? prev.langs.filter((lang) => lang !== value)
+        : [...prev.langs, value],
+    }));
+  };
+
+  const handleNationalityChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, country: value }));
   };
 
   const handleNext = async () => {
@@ -287,23 +346,6 @@ export default function Component() {
 
       return { ...prev, characteristics: newCharacteristics };
     });
-  };
-
-  const addLanguage = () => {
-    if (languageInput.trim()) {
-      setFormData((prev) => ({
-        ...prev,
-        langs: [...prev.langs, languageInput.trim()],
-      }));
-      setLanguageInput("");
-    }
-  };
-
-  const removeLanguage = (lang: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      langs: prev.langs.filter((l) => l !== lang),
-    }));
   };
 
   const toggleTheme = () => {
@@ -424,33 +466,6 @@ export default function Component() {
             </div>
           </div>
         );
-      case "text":
-        const fieldName = currentQuestion === 2 ? "nickname" : "country";
-        return (
-          <div className="space-y-4">
-            <MascotDialogue
-              message={getMascotMessage()}
-              isDarkMode={isDarkMode}
-            />
-
-            <Input
-              type="text"
-              id={fieldName}
-              name={fieldName}
-              value={
-                formData[
-                  fieldName as keyof Pick<FormData, "nickname" | "country">
-                ]
-              }
-              onChange={handleInputChange}
-              className={`w-full ${
-                isDarkMode
-                  ? "bg-[#3c3c45] text-white"
-                  : "bg-white text-gray-900"
-              }`}
-            />
-          </div>
-        );
       case "multipleChoice":
         return (
           <div className="space-y-4">
@@ -522,29 +537,38 @@ export default function Component() {
               message={getMascotMessage()}
               isDarkMode={isDarkMode}
             />
-            <div className="flex space-x-2">
-              <Input
-                type="text"
-                value={languageInput}
-                onChange={(e) => setLanguageInput(e.target.value)}
-                placeholder="Input languages"
-                className={`flex-grow ${
+            <Select onValueChange={handleLanguageChange}>
+              <SelectTrigger
+                className={`w-full ${
                   isDarkMode
                     ? "bg-[#3c3c45] text-white"
                     : "bg-white text-gray-900"
                 }`}
-              />
-              <Button
-                onClick={addLanguage}
+              >
+                <SelectValue placeholder="Select languages" />
+              </SelectTrigger>
+              <SelectContent
                 className={
                   isDarkMode
-                    ? "bg-[#7a7bff] text-white"
-                    : "bg-blue-600 text-white"
+                    ? "bg-[#3c3c45] text-white border-gray-600"
+                    : "bg-white text-gray-900 border-gray-200"
                 }
               >
-                add
-              </Button>
-            </div>
+                {languages.map((lang) => (
+                  <SelectItem
+                    key={lang.code}
+                    value={lang.code}
+                    className={
+                      isDarkMode
+                        ? "focus:bg-[#4c4c55] focus:text-white"
+                        : "focus:bg-gray-100 focus:text-gray-900"
+                    }
+                  >
+                    {lang.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <div className="flex flex-wrap gap-2 mt-2">
               {formData.langs.map((lang, index) => (
                 <span
@@ -555,9 +579,9 @@ export default function Component() {
                       : "bg-gray-200 text-gray-900"
                   }`}
                 >
-                  {lang}
+                  {languages.find((l) => l.code === lang)?.name || lang}
                   <button
-                    onClick={() => removeLanguage(lang)}
+                    onClick={() => handleLanguageChange(lang)}
                     className="ml-2 focus:outline-none"
                   >
                     <X size={14} />
@@ -565,6 +589,71 @@ export default function Component() {
                 </span>
               ))}
             </div>
+          </div>
+        );
+      case "text":
+        if (currentQuestion === 4) {
+          // Nationality question
+          return (
+            <div className="space-y-4">
+              <MascotDialogue
+                message={getMascotMessage()}
+                isDarkMode={isDarkMode}
+              />
+              <Select onValueChange={handleNationalityChange}>
+                <SelectTrigger
+                  className={`w-full ${
+                    isDarkMode
+                      ? "bg-[#3c3c45] text-white"
+                      : "bg-white text-gray-900"
+                  }`}
+                >
+                  <SelectValue placeholder="Select nationality" />
+                </SelectTrigger>
+                <SelectContent
+                  className={
+                    isDarkMode
+                      ? "bg-[#3c3c45] text-white border-gray-600"
+                      : "bg-white text-gray-900 border-gray-200"
+                  }
+                >
+                  {countries.map((country) => (
+                    <SelectItem
+                      key={country.code}
+                      value={country.code}
+                      className={
+                        isDarkMode
+                          ? "focus:bg-[#4c4c55] focus:text-white"
+                          : "focus:bg-gray-100 focus:text-gray-900"
+                      }
+                    >
+                      {country.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          );
+        }
+        // Add a default return for other text questions
+        return (
+          <div className="space-y-4">
+            <MascotDialogue
+              message={getMascotMessage()}
+              isDarkMode={isDarkMode}
+            />
+            <Input
+              type="text"
+              id={currentQuestion === 2 ? "nickname" : "country"}
+              name={currentQuestion === 2 ? "nickname" : "country"}
+              value={formData[currentQuestion === 2 ? "nickname" : "country"]}
+              onChange={handleInputChange}
+              className={`w-full ${
+                isDarkMode
+                  ? "bg-[#3c3c45] text-white"
+                  : "bg-white text-gray-900"
+              }`}
+            />
           </div>
         );
       case "characteristicsPairs":

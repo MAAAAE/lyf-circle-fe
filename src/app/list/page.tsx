@@ -36,6 +36,24 @@ export default function Component() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  const [lyfEvent, setLyfEvent] = useState<Activity>({
+    id: 0,
+    name: "lyf Exclusive Rooftop Yoga",
+    date: { month: 10, day: 28, weekday: "Mon", time: "10:00" },
+    participants: 0,
+    emoji: "🎃",
+    location: "lyf Funan Singapore",
+    description:
+      "[RESIDENT EXCLUSIVE] Join us for a spooky halloween 2024! Make your own witches potions art & craft and bring your little ones to make their own pumpkin using playdough, or even get a DIY halloween mask to celebrate the occassion! Come together on the eve of halloween to try your hand at making your own unique halloween themed mocktail at our 'Potion Bar'. See you there!",
+    hasNewMessages: false,
+    details: [
+      // { title: "What to bring", content: "Yoga mat (we provide if needed), comfortable clothes" },
+      // { title: "Duration", content: "1 hour" },
+      // { title: "Difficulty", content: "All levels welcome" },
+      // { title: "Capacity", content: "Maximum 15 people" },
+    ],
+  });
+
   useEffect(() => {
     fetchActivities()
   }, [])
@@ -227,7 +245,198 @@ export default function Component() {
                       <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" aria-hidden="true" />
                     </div>
                   </div>
-                  {activities.slice(0, visibleItems).map((activity, index) => (
+
+                </div>
+                <div className="mt-6 flex-grow">
+                  <ChatComponent
+                    isDarkMode={isDarkMode}
+                    onNewMessage={() => handleNewMessage(selectedActivity.id)}
+                    userId={user_id}
+                    initialMessages={[
+                      {
+                        content:
+                          "안녕하세요! 이 활동에 대해 궁금한 점이 있으신가요?",
+                        sender: "host",
+                        senderId: "ai",
+                        type: "CHAT",
+                        eventId: selectedActivity.id.toString(),
+                        timestamp: "NOW",
+                        avatar:
+                          "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/lyf-avatar-tyQsPYtUM3rhuC06Vl0WKayntr1KIV.webp",
+                      },
+                    ]}
+                    eventId={selectedActivity.id.toString()}
+                  />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col flex-grow overflow-auto">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold">Suggested Activities</h2>
+                <div className="relative">
+                  <select
+                    className={`appearance-none ${
+                      isDarkMode
+                        ? "bg-[#2c2c35] text-white"
+                        : "bg-white text-gray-900"
+                    } px-4 py-2 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7a7bff] transition-colors duration-200`}
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    aria-label="정렬 기준"
+                  >
+                    <option value="date">date</option>
+                    <option value="participants">participant</option>
+                  </select>
+                  <ChevronDown
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
+                    aria-hidden="true"
+                  />
+                </div>
+              </div>
+
+              <div
+                className={`mb-4 p-4 ${
+                  isDarkMode ? "bg-[#3c3c45]" : "bg-white"
+                } rounded-lg shadow-lg border-2 border-[#7a7bff] cursor-pointer`}
+                onClick={() => handleActivityClick(lyfEvent)}
+                role="button"
+                tabIndex={0}
+                aria-label={`${lyfEvent.name} 상세 정보 보기`}
+                style={{
+                  opacity: 0,
+                  animation: `fadeIn 0.3s ease-out ${0.05}s forwards`,
+                }}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center">
+                    <span
+                      className="text-3xl mr-3"
+                      role="img"
+                      aria-label={lyfEvent.name}
+                    >
+                      {lyfEvent.emoji}
+                    </span>
+                    <div>
+                      <h3 className="text-xl font-semibold">{lyfEvent.name}</h3>
+                      <div
+                        className={`flex items-center text-sm ${
+                          isDarkMode ? "text-gray-400" : "text-gray-600"
+                        } mt-1`}
+                      >
+                        <MapPin className="w-4 h-4 mr-1" />
+                        <span>{lyfEvent.location}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    className={`${
+                      isDarkMode ? "bg-[#2c2c35]" : "bg-gray-200"
+                    } px-3 py-1 rounded-full flex items-center`}
+                  >
+                    <Calendar className="w-4 h-4 mr-1" />
+                    <span className="text-sm font-medium">
+                      {lyfEvent.date.month}/{lyfEvent.date.day}
+                    </span>
+                    <span
+                      className={`text-xs ${
+                        isDarkMode ? "text-gray-400" : "text-gray-600"
+                      } ml-1`}
+                    >
+                      {lyfEvent.date.weekday} {lyfEvent.date.time}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center mt-3 justify-between">
+                  <div className="flex items-center">
+                    <div className="flex -space-x-2">
+                      {[...Array(Math.min(3, lyfEvent.participants))].map(
+                        (_, i) => (
+                          <div
+                            key={i}
+                            className={`w-8 h-8 rounded-full ${
+                              isDarkMode
+                                ? "bg-[#2c2c35] border-[#3c3c45]"
+                                : "bg-gray-300 border-white"
+                            } border-2 flex items-center justify-center text-xs font-semibold`}
+                          >
+                            {String.fromCharCode(65 + i)}
+                          </div>
+                        )
+                      )}
+                      {lyfEvent.participants > 3 && (
+                        <div
+                          className={`w-8 h-8 rounded-full ${
+                            isDarkMode
+                              ? "bg-[#2c2c35] border-[#3c3c45]"
+                              : "bg-gray-300 border-white"
+                          } border-2 flex items-center justify-center text-xs font-semibold`}
+                        >
+                          +{lyfEvent.participants - 3}
+                        </div>
+                      )}
+                    </div>
+                    <span
+                      className={`text-sm ${
+                        isDarkMode ? "text-gray-400" : "text-gray-600"
+                      } ml-3`}
+                    >
+                      participants : {lyfEvent.participants}
+                    </span>
+                  </div>
+                  <div
+                    className={`text-sm font-semibold ${
+                      isDarkMode ? "text-[#7a7bff]" : "text-blue-600"
+                    }`}
+                  >
+                    Sponsored by lyf
+                  </div>
+                </div>
+              </div>
+
+              {activities
+                .slice(0, visibleItems)
+                .map((activity: Activity, index: number) => (
+                  <div
+                    key={activity.id}
+                    className={`mb-4 p-4 ${
+                      isDarkMode ? "bg-[#2c2c35]" : "bg-white"
+                    } rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 cursor-pointer`}
+                    style={{
+                      opacity: 0,
+                      animation: `fadeIn 0.3s ease-out ${
+                        index * 0.05
+                      }s forwards`,
+                    }}
+                    onClick={() => handleActivityClick(activity)}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`${activity.name} 상세 정보 보기`}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center">
+                        <span
+                          className="text-3xl mr-3"
+                          role="img"
+                          aria-label={activity.name}
+                        >
+                          {activity.emoji}
+                        </span>
+                        <div>
+                          <h3 className="text-xl font-semibold">
+                            {activity.name}
+                          </h3>
+                          <div
+                            className={`flex items-center text-sm ${
+                              isDarkMode ? "text-gray-400" : "text-gray-600"
+                            } mt-1`}
+                          >
+                            <MapPin className="w-4 h-4 mr-1" />
+                            <span>{activity.location}</span>
+                          </div>
+                        </div>
+                      </div>
+                      
                       <div
                           key={activity.id}
                           className={`mb-4 p-4 ${isDarkMode ? 'bg-[#2c2c35]' : 'bg-white'} rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 cursor-pointer`}
