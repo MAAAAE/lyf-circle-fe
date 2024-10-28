@@ -365,7 +365,7 @@ export default function Component() {
             <div
               className={`${
                 isDarkMode ? "bg-[#2c2c35]" : "bg-white"
-              } rounded-lg shadow-lg p-6 flex flex-col flex-grow items-center`}
+              } rounded-lg shadow-lg p-6 flex flex-col flex-grow`}
             >
               <button
                 onClick={handleBackClick}
@@ -373,7 +373,7 @@ export default function Component() {
                   isDarkMode
                     ? "text-gray-300 hover:text-white"
                     : "text-gray-600 hover:text-gray-900"
-                } transition-colors duration-200 self-start	`}
+                } transition-colors duration-200 `}
                 aria-label="Back"
               >
                 <ArrowLeft className="w-5 h-5 mr-2" />
@@ -456,6 +456,7 @@ export default function Component() {
                 currentAlbum &&
                 currentAlbum.url.length > 0 && (
                   <div
+                    className="self-center"
                     {...swipeHandlers}
                     style={{
                       overflow: "hidden",
