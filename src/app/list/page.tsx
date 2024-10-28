@@ -477,13 +477,17 @@ export default function Component() {
                   {/* 라이프 주최 이벤트들 */}
                   <div>
                     <h3
-                      className={`text-xl font-semibold mb-4 ${
-                        isDarkMode ? "text-[#7a7bff]" : "text-blue-600"
-                      }`}
-                      style={{
-                        opacity: 0,
-                        animation: `fadeIn 0.3s ease-out ${0}s forwards`,
-                      }}
+                      className={`
+                    text-xl font-semibold mb-4 px-4 py-2 rounded-full
+                    ${
+                      isDarkMode
+                        ? "bg-gradient-to-r from-purple-600 to-blue-600"
+                        : "bg-gradient-to-r from-blue-400 to-purple-500"
+                    }
+                    text-white shadow-lg
+                    animate-pulse
+                    inline-block
+                  `}
                     >
                       lyf Official
                     </h3>
