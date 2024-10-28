@@ -17,11 +17,6 @@ import {
 import ChatComponent from "./ChatComponent";
 import useUserIdStore from "../hooks/useUserInfo";
 
-interface ActivityDetail {
-  title: string;
-  content: string;
-}
-
 interface Activity {
   id: number;
   name: string;
@@ -37,7 +32,6 @@ interface Activity {
   location: string;
   description: string;
   hasNewMessages: boolean;
-  details: ActivityDetail[];
 }
 
 export default function Component() {
@@ -49,7 +43,6 @@ export default function Component() {
   );
   const { user_id } = useUserIdStore();
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [isDetailsExpanded, setIsDetailsExpanded] = useState(true);
   const [activities, setActivities] = useState<Activity[]>([
     {
       id: 1,
@@ -62,12 +55,6 @@ export default function Component() {
       description:
         "Start your day with a rejuvenating yoga session amidst the iconic Supertrees. Experience tranquility in the heart of Singapore's urban oasis.",
       hasNewMessages: true,
-      details: [
-        { title: "What to bring", content: "Yoga mat, water bottle, towel" },
-        { title: "Duration", content: "1 hour" },
-        { title: "Difficulty", content: "All levels welcome" },
-        { title: "Capacity", content: "Maximum 20 people" },
-      ],
     },
     {
       id: 2,
@@ -80,15 +67,6 @@ export default function Component() {
       description:
         "Enjoy a refreshing evening cycle along Singapore's scenic East Coast. Feel the sea breeze as you ride under the stars.",
       hasNewMessages: false,
-      details: [
-        {
-          title: "What to bring",
-          content: "Bicycle (rentals available), helmet, water",
-        },
-        { title: "Duration", content: "2 hours" },
-        { title: "Difficulty", content: "Beginner" },
-        { title: "Capacity", content: "Maximum 12 people" },
-      ],
     },
     {
       id: 3,
@@ -101,12 +79,6 @@ export default function Component() {
       description:
         "Learn to cook authentic Peranakan dishes in this hands-on class. Discover the rich flavors and traditions of Singaporean Nyonya cuisine.",
       hasNewMessages: true,
-      details: [
-        { title: "What to bring", content: "Apron (optional)" },
-        { title: "Duration", content: "3 hours" },
-        { title: "Difficulty", content: "Beginner to Intermediate" },
-        { title: "Capacity", content: "Maximum 8 people" },
-      ],
     },
     {
       id: 4,
@@ -119,15 +91,6 @@ export default function Component() {
       description:
         "Explore the beautiful Sentosa Island on a Segway. Glide past beaches, forests, and historical sites on this guided tour.",
       hasNewMessages: false,
-      details: [
-        {
-          title: "What to bring",
-          content: "Comfortable shoes, sunscreen, sunglasses",
-        },
-        { title: "Duration", content: "2 hours" },
-        { title: "Difficulty", content: "Beginner (training provided)" },
-        { title: "Capacity", content: "Maximum 10 people" },
-      ],
     },
     {
       id: 5,
@@ -140,32 +103,21 @@ export default function Component() {
       description:
         "Immerse yourself in the art of Batik painting. Learn traditional techniques and create your own unique Batik masterpiece to take home.",
       hasNewMessages: false,
-      details: [
-        { title: "What to bring", content: "Old clothes or apron" },
-        { title: "Duration", content: "2.5 hours" },
-        { title: "Difficulty", content: "Beginner" },
-        { title: "Capacity", content: "Maximum 12 people" },
-      ],
     },
   ]);
 
   const [lyfEvent, setLyfEvent] = useState<Activity>({
     id: 0,
-    name: "lyf Exclusive Rooftop Yoga",
+    name: "lyf Holloween",
     date: { month: 10, day: 28, weekday: "Mon", time: "10:00" },
-    icebreaker: "ice",
+    icebreaker:
+      "'Two Truths and a Lie' - Each participant takes turns telling three statements about themselves; two are true and one is false. Others guess which is the lie.",
     participants: 0,
     emoji: "🎃",
     location: "lyf Funan Singapore",
     description:
       "[RESIDENT EXCLUSIVE] Join us for a spooky halloween 2024! Make your own witches potions art & craft and bring your little ones to make their own pumpkin using playdough, or even get a DIY halloween mask to celebrate the occassion! Come together on the eve of halloween to try your hand at making your own unique halloween themed mocktail at our 'Potion Bar'. See you there!",
     hasNewMessages: false,
-    details: [
-      // { title: "What to bring", content: "Yoga mat (we provide if needed), comfortable clothes" },
-      // { title: "Duration", content: "1 hour" },
-      // { title: "Difficulty", content: "All levels welcome" },
-      // { title: "Capacity", content: "Maximum 15 people" },
-    ],
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -248,10 +200,6 @@ export default function Component() {
     );
   };
 
-  const toggleDetails = () => {
-    setIsDetailsExpanded(!isDetailsExpanded);
-  };
-
   return (
     <div
       className={`flex flex-col h-screen ${
@@ -268,13 +216,13 @@ export default function Component() {
             isDarkMode ? "text-[#7a7bff]" : "text-blue-600"
           }`}
         >
-          AI Activity
+          Lyf Circle
         </h1>
         <div className="flex items-center space-x-4">
           <button
             onClick={toggleTheme}
             className="p-2 rounded-full hover:bg-opacity-20 hover:bg-gray-600 transition-colors duration-200"
-            aria-label={isDarkMode ? "라이트 모드로 전환" : "다크 모드로 전환"}
+            aria-label={isDarkMode ? "ligth mode" : "dark mode"}
           >
             {isDarkMode ? (
               <Sun className="w-6 h-6" />
@@ -282,13 +230,6 @@ export default function Component() {
               <Moon className="w-6 h-6" />
             )}
           </button>
-          <User
-            className={`w-8 h-8 ${
-              isDarkMode
-                ? "text-white bg-[#3c3c45]"
-                : "text-gray-600 bg-gray-200"
-            } rounded-full p-1`}
-          />
         </div>
       </header>
 
@@ -330,7 +271,7 @@ export default function Component() {
                   <h2 className="text-3xl font-bold mb-2">
                     {selectedActivity.name}
                   </h2>
-                  <div className="flex items-center text-sm space-x-4">
+                  <div className="flex items-start flex-col text-sm">
                     <div
                       className={`flex items-center ${
                         isDarkMode ? "text-gray-400" : "text-gray-600"
@@ -339,8 +280,8 @@ export default function Component() {
                       <Calendar className="w-4 h-4 mr-1" />
                       <span>
                         {selectedActivity.date.month}/
-                        {selectedActivity.date.day}{" "}
-                        {selectedActivity.date.weekday}{" "}
+                        {selectedActivity.date.day}
+                        {selectedActivity.date.weekday}
                         {selectedActivity.date.time}
                       </span>
                     </div>
@@ -387,48 +328,6 @@ export default function Component() {
                 </p>
               </div>
               <div className="space-y-6 flex flex-col flex-grow">
-                <div
-                  className={`${
-                    isDarkMode ? "bg-[#3c3c45]" : "bg-gray-100"
-                  } rounded-lg transition-all duration-300 ease-in-out ${
-                    isDetailsExpanded
-                      ? "max-h-[1000px]"
-                      : "max-h-[60px] overflow-hidden"
-                  }`}
-                >
-                  <div
-                    className="flex justify-between items-center p-4 cursor-pointer"
-                    onClick={toggleDetails}
-                    role="button"
-                    aria-expanded={isDetailsExpanded}
-                    aria-controls="activity-details"
-                  >
-                    <h3 className="text-xl font-semibold">Details</h3>
-                    {isDetailsExpanded ? (
-                      <ChevronUp className="w-6 h-6" aria-hidden="true" />
-                    ) : (
-                      <ChevronDown className="w-6 h-6" aria-hidden="true" />
-                    )}
-                  </div>
-                  <div id="activity-details" className="px-4 pb-4">
-                    <ul
-                      className={`list-disc list-inside ${
-                        isDarkMode ? "text-gray-300" : "text-gray-700"
-                      }`}
-                    >
-                      {selectedActivity.details.map(
-                        (detail: ActivityDetail, index: number) => (
-                          <li key={index} className="mb-2">
-                            <span className="font-semibold">
-                              {detail.title}:
-                            </span>
-                            {detail.content}
-                          </li>
-                        )
-                      )}
-                    </ul>
-                  </div>
-                </div>
                 <div className="mt-6 flex-grow">
                   <ChatComponent
                     isDarkMode={isDarkMode}
@@ -437,7 +336,7 @@ export default function Component() {
                     initialMessages={[
                       {
                         content:
-                          "안녕하세요! 이 활동에 대해 궁금한 점이 있으신가요?",
+                          "Welcome, new participant! Please say hello to new friend!",
                         sender: "host",
                         senderId: "ai",
                         type: "CHAT",
@@ -465,7 +364,7 @@ export default function Component() {
                     } px-4 py-2 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7a7bff] transition-colors duration-200`}
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    aria-label="정렬 기준"
+                    aria-label="sorting"
                   >
                     <option value="date">date</option>
                     <option value="participants">participant</option>
@@ -481,7 +380,7 @@ export default function Component() {
                 <div
                   className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite] self-center"
                   role="status"
-                  aria-label="로딩 중"
+                  aria-label="loading"
                   style={{
                     borderColor: "#7a7bff",
                     borderRightColor: "transparent",
@@ -500,13 +399,13 @@ export default function Component() {
                 onClick={() => handleActivityClick(lyfEvent)}
                 role="button"
                 tabIndex={0}
-                aria-label={`${lyfEvent.name} 상세 정보 보기`}
+                aria-label={`${lyfEvent.name} details`}
                 style={{
                   opacity: 0,
                   animation: `fadeIn 0.3s ease-out ${0.05}s forwards`,
                 }}
               >
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex c items-center justify-between mb-3">
                   <div className="flex items-center">
                     <span
                       className="text-3xl mr-3"
@@ -545,7 +444,7 @@ export default function Component() {
                     </span>
                   </div>
                 </div>
-                <div className="flex items-center mt-3 justify-between">
+                <div className="flex  items-center mt-3 justify-between">
                   <div className="flex items-center">
                     <div className="flex -space-x-2">
                       {[...Array(Math.min(3, lyfEvent.participants))].map(
@@ -696,7 +595,7 @@ export default function Component() {
                           }`}
                         >
                           <MessageCircle className="w-5 h-5 mr-1" />
-                          <span className="text-sm font-medium">새 메시지</span>
+                          <span className="text-sm font-medium">new</span>
                         </div>
                       )}
                     </div>

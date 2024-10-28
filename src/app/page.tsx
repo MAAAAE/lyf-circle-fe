@@ -28,7 +28,7 @@ function Qrcode() {
               <Loader2 className="w-8 h-8 text-[#010599] animate-spin" />
             ) : (
               <Canvas
-                text={"https://naver.com"}
+                text={"https://www.discoverasr.com/en/lyf"}
                 options={{
                   errorCorrectionLevel: "M",
                   margin: 3,
